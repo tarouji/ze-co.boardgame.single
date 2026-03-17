@@ -5140,7 +5140,10 @@ function applyEventDamage(target, dmg) {
   const actual = Math.min(dmg, target.unit.hp - 1);
   if (actual > 0) {
     target.unit.hp -= actual;
-    if (target.unit) addDamagePopup(target.unit.col, target.unit.row, `${actual}ダメージ`, '#ff9933');
+    if (target.unit) {
+      addDamagePopup(target.unit.col, target.unit.row, `${actual}ダメージ`, '#ff9933');
+      _audio.impact();
+    }
     addLog(`${target.unit.name} は ${actual}ダメージ を受けた。`, 'log-event');
   }
   updateAll();
@@ -5694,7 +5697,10 @@ function eventChainExplosion(callback) {
       const newHp = Math.ceil(p.unit.hp / 2);
       const lost = p.unit.hp - newHp;
       p.unit.hp = newHp;
-      if (lost > 0) addDamagePopup(p.unit.col, p.unit.row, `${lost}ダメージ`, '#ff9933');
+      if (lost > 0) {
+        addDamagePopup(p.unit.col, p.unit.row, `${lost}ダメージ`, '#ff9933');
+        _audio.impact();
+      }
       addLog(`${p.name} は耐久値が ${p.unit.hp} になった。`, 'log-event');
     }
   });
@@ -6867,38 +6873,41 @@ function execCounterAttack(defender, attacker, cardId) {
           applyDamage(attacker, counterDmg, defender);
           updateAll();
           if (gs.phase === 'gameover') return;
-          runCounterMissions(0);
+          buildAndRunCounterMissions();
         }, 350);
       });
     } else {
       applyDamage(attacker, counterDmg, defender);
       updateAll();
       if (gs.phase === 'gameover') return;
-      runCounterMissions(0);
+      buildAndRunCounterMissions();
     }
 
-    // Mission checks for counter attack
-    const mChecks = [];
-    if (counterDmg > 0) {
-      mChecks.push({ trigger: 'damage', ctx: { player: defender, dmg: counterDmg, maxRange: dist, comboUsed: false }});
-      if (attacker.destroyed) {
-        const isInitial = (attacker.unit.templateId === 's01' || attacker.unit.templateId === 's02');
-        mChecks.push({ trigger: 'kill', ctx: { player: defender, comboUsed: false, isInitial, isEvent: false }});
-      }
-    }
-    function runCounterMissions(idx) {
-      if (idx >= mChecks.length) {
-        if (gs.phase === 'gameover') return;
+    // Mission checks for counter attack（applyDamage後に構築）
+    function buildAndRunCounterMissions() {
+      const mChecks = [];
+      if (counterDmg > 0) {
+        mChecks.push({ trigger: 'damage', ctx: { player: defender, dmg: counterDmg, maxRange: dist, comboUsed: false }});
         if (attacker.destroyed) {
-          gs._postDmgAttacker = null; gs._postDmgDefender = null;
-          endTurn();
+          const isInitial = (attacker.unit && (attacker.unit.templateId === 's01' || attacker.unit.templateId === 's02'));
+          mChecks.push({ trigger: 'kill', ctx: { player: defender, comboUsed: false, isInitial, isEvent: false }});
+        }
+      }
+      function runCounterMissions(idx) {
+        if (idx >= mChecks.length) {
+          if (gs.phase === 'gameover') return;
+          if (attacker.destroyed) {
+            gs._postDmgAttacker = null; gs._postDmgDefender = null;
+            endTurn();
+            return;
+          }
+          postDamageRotation_Attacker();
           return;
         }
-        postDamageRotation_Attacker();
-        return;
+        const mc = mChecks[idx];
+        checkMissions(mc.trigger, mc.ctx, () => runCounterMissions(idx + 1));
       }
-      const mc = mChecks[idx];
-      checkMissions(mc.trigger, mc.ctx, () => runCounterMissions(idx + 1));
+      runCounterMissions(0);
     }
   }), defender);
 }
