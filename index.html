@@ -4875,12 +4875,8 @@ function triggerEvent(player, callback) {
       }
       if (gs.activeEvent) clearContinuousEvent();
       gs.currentEventId = eventId;
-      // イベントカードをオーバーレイ表示前に即時表示
-      updateEventPanel();
       showEventOverlay(eventId, () => {
         addLog('対象がいなかった。（イベント終了）', 'log-event');
-        gs.doneInstantEvents.add(eventId);
-        gs.currentEventId = null;
         updateEventPanel();
         checkMissions('event', { player }, () => {
           if (gs.phase === 'gameover') return;
@@ -4914,9 +4910,6 @@ function triggerEvent(player, callback) {
   // Set new current event
   gs.currentEventId = eventId;
 
-  // イベントカードをオーバーレイ表示前に即時表示
-  updateEventPanel();
-
   // Show event card overlay, then execute effect
   showEventOverlay(eventId, () => {
     // If continuous, set as active
@@ -4926,12 +4919,6 @@ function triggerEvent(player, callback) {
     }
     // Execute the event effect
     executeEvent(eventId, player, () => {
-      // 即時イベントは効果終了時点で「終了」バッジを表示
-      const _THIRD_FORCE = ['event31','event32','event33','event34'];
-      if (ev.type === 'instant' && !_THIRD_FORCE.includes(eventId)) {
-        gs.doneInstantEvents.add(eventId);
-        gs.currentEventId = null;
-      }
       // event panel update after executeEvent so activeThirdForceEvents is registered
       updateEventPanel();
       // Check hand limit for all players after event
@@ -5316,7 +5303,7 @@ function eventScorePoint(player, callback) {
   if (team !== 'a' && team !== 'b') { if (callback) callback(); return; }
   if (team === 'a') gs.scores.a += 1; else gs.scores.b += 1;
   showScorePop(team, 1);
-  addLog(`${team === 'a' ? 'A軍' : 'B軍'} に 1ポイント が入った。`, 'log-event');
+  addLog(`${team === 'a' ? 'A軍' : 'B軍'} に 1ポイント が入った。（計${team === 'a' ? gs.scores.a : gs.scores.b}ポイント）`, 'log-event');
   updateAll();
   // Check VP victory
   if (gs.scores.a >= gameConfig.victoryPoints || gs.scores.b >= gameConfig.victoryPoints) {
@@ -8142,7 +8129,7 @@ function applyDamage(target, dmg, attacker) {
     if (attacker.team === 'a' || attacker.team === 'b') {
       if (attacker.team === 'a') gs.scores.a += pts; else gs.scores.b += pts;
       addLog(`${target.unit.name} は撃墜された。`, 'destroy');
-      addLog(`${attacker.team==='a'?'A軍':'B軍'} に ${pts}ポイント が入った。`, 'log-progress');
+      addLog(`${attacker.team==='a'?'A軍':'B軍'} に ${pts}ポイント が入った。（計${attacker.team==='a'?gs.scores.a:gs.scores.b}ポイント）`, 'log-progress');
       showScorePop(attacker.team, pts);
     } else {
       addLog(`${target.unit.name} は撃墜された。`, 'destroy');
