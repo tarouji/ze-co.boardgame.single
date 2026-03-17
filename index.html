@@ -2032,6 +2032,49 @@ const _audio = (() => {
       } catch(e) {}
     },
 
+    // イベントダメージ: ドカーン（短めの爆発）
+    boom() {
+      try {
+        const ac = getCtx();
+        const now = ac.currentTime;
+        // 低音ドスン
+        const osc1 = ac.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(150, now);
+        osc1.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+        const gain1 = ac.createGain();
+        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc1.connect(gain1); gain1.connect(ac.destination);
+        osc1.start(now); osc1.stop(now + 0.4);
+        // ノイズ爆風
+        const dur2 = 0.25;
+        const buf = ac.createBuffer(1, ac.sampleRate * dur2, ac.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        const nsrc = ac.createBufferSource(); nsrc.buffer = buf;
+        const nfilt = ac.createBiquadFilter();
+        nfilt.type = 'lowpass'; nfilt.frequency.value = 600;
+        const ngain = ac.createGain();
+        ngain.gain.setValueAtTime(0.3, now);
+        ngain.gain.exponentialRampToValueAtTime(0.001, now + dur2);
+        nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
+        nsrc.start(now); nsrc.stop(now + dur2 + 0.02);
+        // 中音のバースト
+        const osc3 = ac.createOscillator();
+        osc3.type = 'sawtooth';
+        osc3.frequency.setValueAtTime(200, now);
+        osc3.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+        const filt3 = ac.createBiquadFilter();
+        filt3.type = 'bandpass'; filt3.frequency.value = 400; filt3.Q.value = 0.8;
+        const gain3 = ac.createGain();
+        gain3.gain.setValueAtTime(0.2, now);
+        gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc3.connect(filt3); filt3.connect(gain3); gain3.connect(ac.destination);
+        osc3.start(now); osc3.stop(now + 0.25);
+      } catch(e) {}
+    },
+
     // 第三勢力出現: バーン（驚き・インパクト音）
     appear() {
       try {
@@ -4832,8 +4875,12 @@ function triggerEvent(player, callback) {
       }
       if (gs.activeEvent) clearContinuousEvent();
       gs.currentEventId = eventId;
+      // イベントカードをオーバーレイ表示前に即時表示
+      updateEventPanel();
       showEventOverlay(eventId, () => {
         addLog('対象がいなかった。（イベント終了）', 'log-event');
+        gs.doneInstantEvents.add(eventId);
+        gs.currentEventId = null;
         updateEventPanel();
         checkMissions('event', { player }, () => {
           if (gs.phase === 'gameover') return;
@@ -4867,6 +4914,9 @@ function triggerEvent(player, callback) {
   // Set new current event
   gs.currentEventId = eventId;
 
+  // イベントカードをオーバーレイ表示前に即時表示
+  updateEventPanel();
+
   // Show event card overlay, then execute effect
   showEventOverlay(eventId, () => {
     // If continuous, set as active
@@ -4874,11 +4924,16 @@ function triggerEvent(player, callback) {
       gs.activeEvent = eventId;
       applyContinuousEvent(eventId);
     }
-    // Update event panel display
-    updateEventPanel();
     // Execute the event effect
     executeEvent(eventId, player, () => {
-      // (instant event panel update deferred to next player's turn in startTurn)
+      // 即時イベントは効果終了時点で「終了」バッジを表示
+      const _THIRD_FORCE = ['event31','event32','event33','event34'];
+      if (ev.type === 'instant' && !_THIRD_FORCE.includes(eventId)) {
+        gs.doneInstantEvents.add(eventId);
+        gs.currentEventId = null;
+      }
+      // event panel update after executeEvent so activeThirdForceEvents is registered
+      updateEventPanel();
       // Check hand limit for all players after event
       checkAllHandLimits(() => {
         // Mission check for landing on event (mission10)
@@ -5142,7 +5197,8 @@ function applyEventDamage(target, dmg) {
     target.unit.hp -= actual;
     if (target.unit) {
       addDamagePopup(target.unit.col, target.unit.row, `${actual}ダメージ`, '#ff9933');
-      _audio.impact();
+      _audio.init();
+      _audio.boom();
     }
     addLog(`${target.unit.name} は ${actual}ダメージ を受けた。`, 'log-event');
   }
@@ -5699,7 +5755,8 @@ function eventChainExplosion(callback) {
       p.unit.hp = newHp;
       if (lost > 0) {
         addDamagePopup(p.unit.col, p.unit.row, `${lost}ダメージ`, '#ff9933');
-        _audio.impact();
+        _audio.init();
+        _audio.boom();
       }
       addLog(`${p.name} は耐久値が ${p.unit.hp} になった。`, 'log-event');
     }
