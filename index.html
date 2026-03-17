@@ -1563,6 +1563,14 @@ const _audio = (() => {
   }
 
   return {
+    // AudioContextを事前に起動（最初の音が鳴らない問題の対策）
+    init() {
+      try {
+        const ac = getCtx();
+        if (ac.state === 'suspended') ac.resume();
+      } catch(e) {}
+    },
+
     // 射撃: ピュン（高→低に下がるサイン波）
     shoot() {
       try {
@@ -2376,6 +2384,7 @@ function ssChangeVP(delta) {
 }
 
 function ssStartGame() {
+  _audio.init();
   // モバイルの場合はms-player-nameから名前を取得
   const nameEl = isMobile()
     ? document.getElementById('ms-player-name')
