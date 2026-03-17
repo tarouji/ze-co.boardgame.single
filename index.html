@@ -1141,8 +1141,8 @@
         <input type="text" class="ms-name-input" id="ms-player-name" placeholder="プレイヤー名を入力" maxlength="12">
       </div>
       <div class="ms-section">
-        <div class="ms-label">ステータス振り分け</div>
-        <div class="ms-stat-remain">残りポイント: <span id="ms-stat-remain">9</span></div>
+        <div class="ms-label">ステータス設定</div>
+        <div class="ms-stat-remain">残り: <span id="ms-stat-remain">9</span></div>
         <div class="ms-stat-row">
           <div class="ms-stat-name">技術</div>
           <button class="ms-stat-btn" onclick="msChangeStat('tech',-1)">−</button>
@@ -1164,7 +1164,7 @@
           <button class="ms-stat-btn" onclick="msChangeStat('spirit',1)">＋</button>
           <div class="ms-bar-bg"><div class="ms-bar-fill spirit" id="ms-bar-spirit" style="width:16.7%"></div></div>
         </div>
-        <div class="ms-stat-note">各ステータス 1～6 ／ 合計12ポイント</div>
+        <div class="ms-stat-note">各ステータス 1～6 ／ 合計12</div>
       </div>
       <div class="ms-section">
         <div class="ms-label">対戦人数</div>
@@ -1262,9 +1262,9 @@
       </div>
     </div>
     <div class="ss-section">
-      <div class="ss-label">ステータス振り分け</div>
+      <div class="ss-label">ステータス設定</div>
       <div class="ss-stat-alloc">
-        <div class="ss-stat-remain">残りポイント: <span id="ss-stat-remain">9</span></div>
+        <div class="ss-stat-remain">残り: <span id="ss-stat-remain">9</span></div>
         <div class="ss-stat-row">
           <div class="ss-stat-name">技術</div>
           <button class="ss-stat-btn" onclick="ssChangeStat('tech',-1)">−</button>
@@ -1286,7 +1286,7 @@
           <button class="ss-stat-btn" onclick="ssChangeStat('spirit',1)">＋</button>
           <div class="ss-bar-bg"><div class="ss-bar-fill spirit" id="ss-bar-spirit" style="width:16.7%"></div></div>
         </div>
-        <div class="ss-stat-note">各ステータス 1～6 ／ 合計12ポイント</div>
+        <div class="ss-stat-note">各ステータス 1～6 ／ 合計12</div>
       </div>
     </div>
     <div class="ss-section">
@@ -1334,21 +1334,21 @@
     <div class="info-modal-body" id="rule-modal-body">
       <div class="rule-section">
         <div class="rule-section-title">起動戦士ゼーコガンニョム ボードゲーム</div>
-        <div class="rule-text">これは、プレイヤーが<b style="color:#c0d0e8;">A軍</b>・<b style="color:#c0d0e8;">B軍</b>に分かれて、<b style="color:#c0d0e8;">MoS</b>というロボットに乗って戦うゲームです。<br>プレイヤーはマップ上のユニットを<b style="color:#c0d0e8;">サイコロ</b>で動かし、<b style="color:#c0d0e8;">手札のカード</b>を駆使して戦います。</div>
+        <div class="rule-text">プレイヤーが<b style="color:#c0d0e8;">A軍</b>・<b style="color:#c0d0e8;">B軍</b>に分かれて、<b style="color:#c0d0e8;">MoS</b>というロボットに乗って戦うゲームです。<br>プレイヤーはマップ上のユニットを<b style="color:#c0d0e8;">サイコロ</b>で動かし、<b style="color:#c0d0e8;">手札のカード</b>を駆使して戦います。</div>
       </div>
       <div class="rule-section">
         <div class="rule-section-title">ゲームの操作</div>
-        <div class="rule-text">ゲームはすべて画面下の<b style="color:#c0d0e8;">選択肢ボタン</b>か、<b style="color:#c0d0e8;">マップ上のマスやユニット</b>をクリックして操作します。<br>ユニット、手札・捨て札のカード、ミッション・イベントのカードは、<b style="color:#c0d0e8;">クリックすると拡大表示</b>されます。</div>
+        <div class="rule-text">ゲームはすべて画面に出る<b style="color:#c0d0e8;">選択肢ボタン</b>か、<b style="color:#c0d0e8;">マップ上のマスやユニット</b>をクリックして操作します。<br>ユニット、手札・捨て札のカード、ミッション・イベントのカードは、<b style="color:#c0d0e8;">クリックすると拡大表示</b>されます。</div>
       </div>
       <div class="rule-section">
         <div class="rule-section-title">ステータスの設定</div>
-        <div class="rule-text">ゲーム開始前にパイロットの<b style="color:#c0d0e8;">技術・反応・精神</b>の3つのステータスを設定します（<b style="color:#c0d0e8;">合計12ポイント</b>、<b style="color:#c0d0e8;">各1〜6</b>）。<br>ステータスは、<b style="color:#c0d0e8;">行動順</b>（<b style="color:#c0d0e8;">技術・反応</b>）や<b style="color:#c0d0e8;">開始時の手札</b>（<b style="color:#c0d0e8;">精神</b>）に影響します。<br>また、ステータスによって<b style="color:#c0d0e8;">スキルカードの効果</b>が変わります。</div>
+        <div class="rule-text">ゲーム開始前に、パイロットのステータス（<b style="color:#c0d0e8;">技術</b>・<b style="color:#c0d0e8;">反応</b>・<b style="color:#c0d0e8;">精神</b>）を設定します。<br>各ステータスに<b style="color:#c0d0e8;">1〜6</b>を割り振って、<b style="color:#c0d0e8;">合計12</b>にしてください。<br>ステータスは、<b style="color:#c0d0e8;">行動順</b>（<b style="color:#c0d0e8;">技術・反応</b>）や<b style="color:#c0d0e8;">開始時の手札</b>（<b style="color:#c0d0e8;">精神</b>）に影響します。<br>また、ステータスによって<b style="color:#c0d0e8;">スキルカードの効果</b>が変わります。</div>
       </div>
       <div class="rule-section">
         <div class="rule-section-title">マップのマス</div>
         <div class="rule-block">
           <div class="rule-block-title">出撃マス <span class="rule-htag tag-spawn-a">A軍</span><span class="rule-htag tag-spawn-b">B軍</span></div>
-          <div class="rule-text">ゲーム開始時と撃墜後の再出撃で使うマスです。自軍の出撃マスにユニットを配置してゲームが始まります。</div>
+          <div class="rule-text">ゲーム開始時に<b style="color:#c0d0e8;">出撃</b>したり、撃墜後に<b style="color:#c0d0e8;">再出撃</b>したりするマスです。</div>
         </div>
         <div class="rule-block">
           <div class="rule-block-title">拠点マス <span class="rule-htag tag-base">紫</span></div>
