@@ -1623,7 +1623,7 @@ const _audio = (() => {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(120, now);
         osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
-        gainO.gain.setValueAtTime(0.4, now);
+        gainO.gain.setValueAtTime(0.2, now);
         gainO.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
         osc.connect(gainO); gainO.connect(ac.destination);
         osc.start(now); osc.stop(now + 0.2);
@@ -1637,7 +1637,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 200;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.25, now);
+        ngain.gain.setValueAtTime(0.15, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.02);
@@ -1765,7 +1765,7 @@ const _audio = (() => {
         osc.frequency.setValueAtTime(200, now);
         osc.frequency.exponentialRampToValueAtTime(60, now + 0.2);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.setValueAtTime(0.2, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + 0.3);
@@ -1778,7 +1778,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 300;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.3, now);
+        ngain.gain.setValueAtTime(0.15, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.02);
@@ -1798,7 +1798,7 @@ const _audio = (() => {
         const filt1 = ac.createBiquadFilter();
         filt1.type = 'lowpass'; filt1.frequency.value = 400;
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.4, now);
+        gain1.gain.setValueAtTime(0.2, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
         osc1.connect(filt1); filt1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.4);
@@ -1811,7 +1811,7 @@ const _audio = (() => {
         filt2.type = 'bandpass'; filt2.frequency.value = 300; filt2.Q.value = 0.8;
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.25, now + 0.05);
+        gain2.gain.linearRampToValueAtTime(0.15, now + 0.05);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
         osc2.connect(filt2); filt2.connect(gain2); gain2.connect(ac.destination);
         osc2.start(now + 0.03); osc2.stop(now + 0.5);
@@ -1824,7 +1824,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 500;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.2, now);
+        ngain.gain.setValueAtTime(0.12, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur3);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur3 + 0.02);
@@ -1922,8 +1922,8 @@ const _audio = (() => {
         lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.35, now + 0.08);
-        gain.gain.setValueAtTime(0.35, now + dur - 0.1);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
+        gain.gain.setValueAtTime(0.2, now + dur - 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         // ノイズ爆発成分（最初の一発）
@@ -1934,7 +1934,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 500;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.4, now);
+        ngain.gain.setValueAtTime(0.18, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         lfo.start(now); osc.start(now); nsrc.start(now);
@@ -1989,7 +1989,7 @@ const _audio = (() => {
         osc1.frequency.setValueAtTime(120, now);
         osc1.frequency.exponentialRampToValueAtTime(25, now + 0.5);
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.7, now);
+        gain1.gain.setValueAtTime(0.25, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         osc1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.65);
@@ -2002,7 +2002,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 400;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.5, now);
+        ngain.gain.setValueAtTime(0.2, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur2);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur2 + 0.05);
@@ -2014,7 +2014,7 @@ const _audio = (() => {
         const filt3 = ac.createBiquadFilter();
         filt3.type = 'bandpass'; filt3.frequency.value = 500; filt3.Q.value = 0.8;
         const gain3 = ac.createGain();
-        gain3.gain.setValueAtTime(0.25, now);
+        gain3.gain.setValueAtTime(0.15, now);
         gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc3.connect(filt3); filt3.connect(gain3); gain3.connect(ac.destination);
         osc3.start(now); osc3.stop(now + 0.35);
@@ -2025,7 +2025,7 @@ const _audio = (() => {
         osc4.frequency.exponentialRampToValueAtTime(20, now + 0.8);
         const gain4 = ac.createGain();
         gain4.gain.setValueAtTime(0, now);
-        gain4.gain.linearRampToValueAtTime(0.3, now + 0.15);
+        gain4.gain.linearRampToValueAtTime(0.15, now + 0.15);
         gain4.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
         osc4.connect(gain4); gain4.connect(ac.destination);
         osc4.start(now + 0.1); osc4.stop(now + 0.85);
@@ -2043,7 +2043,7 @@ const _audio = (() => {
         osc1.frequency.setValueAtTime(180, now);
         osc1.frequency.exponentialRampToValueAtTime(45, now + 0.25);
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.5, now);
+        gain1.gain.setValueAtTime(0.2, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.35);
@@ -2068,7 +2068,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 600;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.3, now);
+        ngain.gain.setValueAtTime(0.15, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur3);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur3 + 0.02);
