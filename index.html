@@ -2722,7 +2722,7 @@ function msRenderMissions(el) {
     const mPoints = m.points;
     const myScore = (myTeam === 'a' ? gs.scores.a : gs.scores.b) + mPoints;
     const enemyScore = myTeam === 'a' ? gs.scores.b : gs.scores.a;
-    const scoreOk = myScore >= enemyScore;
+    const scoreOk = myScore > enemyScore;
     const img = document.createElement('img');
     img.src = m.img;
     img.onclick = () => showCardZoom(m.img, false);
@@ -4779,7 +4779,7 @@ function updateMissionPanel() {
     const mPoints = MISSION_DB[ownTm.id].points;
     const myScore = (playerTeam === 'a' ? gs.scores.a : gs.scores.b) + mPoints;
     const enemyScore = playerTeam === 'a' ? gs.scores.b : gs.scores.a;
-    const scoreOk = myScore >= enemyScore;
+    const scoreOk = myScore > enemyScore;
     const unlocked = gs.missions.allCommonDone && scoreOk;
 
     if (!gs.missions.allCommonDone) {
