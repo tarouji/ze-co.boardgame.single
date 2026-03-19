@@ -5314,7 +5314,6 @@ function eventDirectAttack(player, callback) {
 
 // event07-08: Trap — self takes damage (no kill)
 function eventTrap(player, dmg, callback) {
-  addLog(`${player.unit.name} は ${dmg}ダメージ を受けた。`, 'log-event');
   applyEventDamage(player, dmg);
   if (callback) callback();
 }
@@ -7011,17 +7010,17 @@ function useDefenseSkill(player, cardId, returnCallback) {
 // Note: defender does NOT benefit from attacker's diceControl
 function execDefend(player, cardId, returnCallback) {
   const statCap = player.stats.react;
-  const { capped: diceValue } = rollSkillDice(statCap);
-  applyDefend(player, cardId, diceValue, returnCallback);
+  const { raw, capped } = rollSkillDice(statCap);
+  applyDefend(player, cardId, raw, capped, returnCallback);
 }
 
-function applyDefend(player, cardId, diceValue, returnCallback) {
-  const reduction = diceValue * player.unit.level;
+function applyDefend(player, cardId, rawDice, cappedDice, returnCallback) {
+  const reduction = cappedDice * player.unit.level;
   attackCtx.defReduction += reduction;
   const effectText = `ダメージを ${reduction} 減らす`;
-  addLog(`スキルサイコロの出目は ${diceValue} 、ダメージを ${reduction} 減らした。`, 'log-skill');
+  addLog(`スキルサイコロの出目は ${rawDice} 、ダメージを ${reduction} 減らした。`, 'log-skill');
 
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     updateAll();
     if (returnCallback) returnCallback();
   }, player);
@@ -7096,24 +7095,25 @@ function useSkillCard(player, cardId, returnCallback) {
 function execMoveUp(player, cardId, returnCallback) {
   const statCap = player.stats.tech;
   const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
-  const diceValue = roll ? roll.capped : null;
-  
-  if (diceValue === null) {
+  const rawDice = roll ? roll.raw : null;
+  const cappedDice = roll ? roll.capped : null;
+
+  if (cappedDice === null) {
     // Dice control: player picks value (capped by tech)
     showSkillDiceControlChoice(player, statCap, cardId, (chosen) => {
-      applyMoveUp(player, cardId, chosen, returnCallback);
+      applyMoveUp(player, cardId, chosen, Math.min(chosen, statCap), returnCallback);
     });
   } else {
-    applyMoveUp(player, cardId, diceValue, returnCallback);
+    applyMoveUp(player, cardId, rawDice, cappedDice, returnCallback);
   }
 }
 
-function applyMoveUp(player, cardId, diceValue, returnCallback) {
-  turnBuffs.moveBonus += diceValue;
-  const effectText = `移動力が ${diceValue} 増える`;
-  addLog(`スキルサイコロの出目は ${diceValue} 、移動力が ${diceValue} 増えた。`, 'log-skill');
+function applyMoveUp(player, cardId, rawDice, cappedDice, returnCallback) {
+  turnBuffs.moveBonus += cappedDice;
+  const effectText = `移動力が ${cappedDice} 増える`;
+  addLog(`スキルサイコロの出目は ${rawDice} 、移動力が ${cappedDice} 増えた。`, 'log-skill');
   
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     updateAll();
     if (returnCallback) returnCallback();
   }, player);
@@ -7122,23 +7122,24 @@ function applyMoveUp(player, cardId, diceValue, returnCallback) {
 function execRangeUp(player, cardId, returnCallback) {
   const statCap = player.stats.tech;
   const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
-  const diceValue = roll ? roll.capped : null;
-  
-  if (diceValue === null) {
+  const rawDice = roll ? roll.raw : null;
+  const cappedDice = roll ? roll.capped : null;
+
+  if (cappedDice === null) {
     showSkillDiceControlChoice(player, statCap, cardId, (chosen) => {
-      applyRangeUp(player, cardId, chosen, returnCallback);
+      applyRangeUp(player, cardId, chosen, Math.min(chosen, statCap), returnCallback);
     });
   } else {
-    applyRangeUp(player, cardId, diceValue, returnCallback);
+    applyRangeUp(player, cardId, rawDice, cappedDice, returnCallback);
   }
 }
 
-function applyRangeUp(player, cardId, diceValue, returnCallback) {
-  turnBuffs.rangeBonus += diceValue;
-  const effectText = `射程が ${diceValue} 増える`;
-  addLog(`スキルサイコロの出目は ${diceValue} 、射程が ${diceValue} 増えた。`, 'log-skill');
+function applyRangeUp(player, cardId, rawDice, cappedDice, returnCallback) {
+  turnBuffs.rangeBonus += cappedDice;
+  const effectText = `射程が ${cappedDice} 増える`;
+  addLog(`スキルサイコロの出目は ${rawDice} 、射程が ${cappedDice} 増えた。`, 'log-skill');
   
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     updateAll();
     if (returnCallback) returnCallback();
   }, player);
@@ -7147,25 +7148,26 @@ function applyRangeUp(player, cardId, diceValue, returnCallback) {
 function execDamageUp(player, cardId, returnCallback) {
   const statCap = player.stats.tech;
   const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
-  const diceValue = roll ? roll.capped : null;
-  
-  if (diceValue === null) {
+  const rawDice = roll ? roll.raw : null;
+  const cappedDice = roll ? roll.capped : null;
+
+  if (cappedDice === null) {
     showSkillDiceControlChoice(player, statCap, cardId, (chosen) => {
-      applyDamageUp(player, cardId, chosen, returnCallback);
+      applyDamageUp(player, cardId, chosen, Math.min(chosen, statCap), returnCallback);
     });
   } else {
-    applyDamageUp(player, cardId, diceValue, returnCallback);
+    applyDamageUp(player, cardId, rawDice, cappedDice, returnCallback);
   }
 }
 
-function applyDamageUp(player, cardId, diceValue, returnCallback) {
+function applyDamageUp(player, cardId, rawDice, cappedDice, returnCallback) {
   const starCount = player.unit.level;
-  const bonus = diceValue * starCount;
+  const bonus = cappedDice * starCount;
   turnBuffs.dmgBonus += bonus;
   const effectText = `ダメージが ${bonus} 増える`;
-  addLog(`スキルサイコロの出目は ${diceValue} 、攻撃ダメージが ${bonus} 増えた。`, 'log-skill');
+  addLog(`スキルサイコロの出目は ${rawDice} 、攻撃ダメージが ${bonus} 増えた。`, 'log-skill');
   
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     updateAll();
     if (returnCallback) returnCallback();
   }, player);
@@ -7240,19 +7242,20 @@ function getDrawCount(diceValue) {
 function execDraw(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
   const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
-  const diceValue = roll ? roll.capped : null;
-  
-  if (diceValue === null) {
+  const rawDice = roll ? roll.raw : null;
+  const cappedDice = roll ? roll.capped : null;
+
+  if (cappedDice === null) {
     showSkillDiceControlChoice(player, statCap, cardId, (chosen) => {
-      applyDraw(player, cardId, chosen, returnCallback);
+      applyDraw(player, cardId, chosen, Math.min(chosen, statCap), returnCallback);
     });
   } else {
-    applyDraw(player, cardId, diceValue, returnCallback);
+    applyDraw(player, cardId, rawDice, cappedDice, returnCallback);
   }
 }
 
-function applyDraw(player, cardId, diceValue, returnCallback) {
-  const count = getDrawCount(diceValue);
+function applyDraw(player, cardId, rawDice, cappedDice, returnCallback) {
+  const count = getDrawCount(cappedDice);
   const drawn = [];
   for (let i = 0; i < count; i++) {
     // Bypass hand limit for draw skill — push directly
@@ -7269,10 +7272,10 @@ function applyDraw(player, cardId, diceValue, returnCallback) {
   }
   
   const names = drawn.map(cid => CARD_DB[cid].name).join(', ');
-  addLog(`スキルサイコロの出目は ${diceValue} 、山札から ${drawn.length}枚 引いた。`, 'log-skill');
+  addLog(`スキルサイコロの出目は ${rawDice} 、山札から ${drawn.length}枚 引いた。`, 'log-skill');
   
   const effectText = `山札から ${drawn.length}枚 カードを引く`;
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     // Check hand limit — if over 4, must discard down
     if (player.hand.length > MAX_HAND_SIZE) {
       if (player.isHuman) {
@@ -7427,26 +7430,27 @@ function applyDiceControl(player, cardId, diceValue, returnCallback) {
 function execHpRecover(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
   const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
-  const diceValue = roll ? roll.capped : null;
-  
-  if (diceValue === null) {
+  const rawDice = roll ? roll.raw : null;
+  const cappedDice = roll ? roll.capped : null;
+
+  if (cappedDice === null) {
     showSkillDiceControlChoice(player, statCap, cardId, (chosen) => {
-      applyHpRecover(player, cardId, chosen, returnCallback);
+      applyHpRecover(player, cardId, chosen, Math.min(chosen, statCap), returnCallback);
     });
   } else {
-    applyHpRecover(player, cardId, diceValue, returnCallback);
+    applyHpRecover(player, cardId, rawDice, cappedDice, returnCallback);
   }
 }
 
-function applyHpRecover(player, cardId, diceValue, returnCallback) {
-  const heal = diceValue * 3;
+function applyHpRecover(player, cardId, rawDice, cappedDice, returnCallback) {
+  const heal = cappedDice * 3;
   const oldHp = player.unit.hp;
   player.unit.hp = Math.min(player.unit.hp + heal, player.unit.maxHp);
   const actual = player.unit.hp - oldHp;
   const effectText = `耐久値を ${actual} 回復する`;
-  addLog(`スキルサイコロの出目は ${diceValue} 、耐久値が ${actual} 回復した。（現在の耐久値 ${player.unit.hp}）`, 'log-skill');
+  addLog(`スキルサイコロの出目は ${rawDice} 、耐久値が ${actual} 回復した。（現在の耐久値 ${player.unit.hp}）`, 'log-skill');
   
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     updateAll();
     if (returnCallback) returnCallback();
   }, player);
@@ -7457,26 +7461,27 @@ function applyHpRecover(player, cardId, diceValue, returnCallback) {
 function execRecycle(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
   const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
-  const diceValue = roll ? roll.capped : null;
-  
-  if (diceValue === null) {
+  const rawDice = roll ? roll.raw : null;
+  const cappedDice = roll ? roll.capped : null;
+
+  if (cappedDice === null) {
     showSkillDiceControlChoice(player, statCap, cardId, (chosen) => {
-      applyRecycle(player, cardId, chosen, returnCallback);
+      applyRecycle(player, cardId, chosen, Math.min(chosen, statCap), returnCallback);
     });
   } else {
-    applyRecycle(player, cardId, diceValue, returnCallback);
+    applyRecycle(player, cardId, rawDice, cappedDice, returnCallback);
   }
 }
 
-function applyRecycle(player, cardId, diceValue, returnCallback) {
-  const count = getDrawCount(diceValue); // same table as draw
+function applyRecycle(player, cardId, rawDice, cappedDice, returnCallback) {
+  const count = getDrawCount(cappedDice); // same table as draw
   const recyclable = gs.discard.filter(cid => CARD_DB[cid].name !== 'リサイクル');
   const actualCount = Math.min(count, recyclable.length);
   
-  addLog(`スキルサイコロの出目は ${diceValue} 、捨て札から ${actualCount}枚 まで手札に加える。`, 'log-skill');
+  addLog(`スキルサイコロの出目は ${rawDice} 、捨て札から ${actualCount}枚 まで手札に加える。`, 'log-skill');
   
   const effectText = `捨て札から ${actualCount}枚 まで選んで手札に加える`;
-  showSkillOverlay(cardId, diceValue, effectText, 'skill-effect-success', () => {
+  showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
     if (actualCount === 0) {
       addLog('捨て札にカードがなかった。', 'log-skill');
       updateAll();
