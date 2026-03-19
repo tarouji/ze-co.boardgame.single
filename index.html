@@ -2126,6 +2126,29 @@ const _audio = (() => {
         osc3.start(now + 0.05); osc3.stop(now + 0.55);
       } catch(e) {}
     },
+
+    // サイコロ: ガラガラ4回
+    dice() {
+      try {
+        const ac = getCtx();
+        const now = ac.currentTime;
+        for (let i = 0; i < 4; i++) {
+          const t = now + i * 0.055;
+          const dur = 0.035;
+          const buf = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / data.length);
+          const src = ac.createBufferSource(); src.buffer = buf;
+          const filt = ac.createBiquadFilter(); filt.type = 'bandpass';
+          filt.frequency.value = 1500; filt.Q.value = 1.5;
+          const gain = ac.createGain();
+          gain.gain.setValueAtTime(0.12, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.02);
+          src.connect(filt); filt.connect(gain); gain.connect(ac.destination);
+          src.start(t); src.stop(t + dur + 0.03);
+        }
+      } catch(e) {}
+    },
   };
 })();
 
@@ -3469,6 +3492,7 @@ function resetAttackCtx() {
 // Show card overlay with skill dice result, then call callback on click
 function showSkillOverlay(cardId, diceValue, effectText, effectClass, callback, skillUser) {
   _audio.skill();
+  setTimeout(() => _audio.dice(), 250);
   // Track skill failure for mission06
   const isFail = effectClass === 'skill-effect-fail';
   const failPlayer = (isFail && skillUser) ? skillUser : null;
@@ -6077,6 +6101,7 @@ function showPreRollChoice(cp) {
 
 function humanRoll() {
   const cp = getCurrentPlayer();
+  _audio.dice();
   const d = turnBuffs.diceControl ? null : rollDice(); // null = will prompt choice
   if (d === null) {
     // Dice control active → player picks value
@@ -6631,8 +6656,9 @@ function resolveAttackDamage() {
       }});
       if (savedTarget.destroyed) {
         const isInitial = (savedTarget.unit.templateId === 's01' || savedTarget.unit.templateId === 's02');
+        const isEventUnit = !!savedTarget.noCards;
         missionChecks.push({ trigger: 'kill', ctx: {
-          player: savedAttacker, comboUsed: hadCombo, isInitial: isInitial, isEvent: false
+          player: savedAttacker, comboUsed: hadCombo, isInitial: isInitial, isEvent: isEventUnit
         }});
       }
     }
@@ -6932,7 +6958,8 @@ function execCounterAttack(defender, attacker, cardId) {
         mChecks.push({ trigger: 'damage', ctx: { player: defender, dmg: counterDmg, maxRange: dist, comboUsed: false }});
         if (attacker.destroyed) {
           const isInitial = (attacker.unit && (attacker.unit.templateId === 's01' || attacker.unit.templateId === 's02'));
-          mChecks.push({ trigger: 'kill', ctx: { player: defender, comboUsed: false, isInitial, isEvent: false }});
+          const isEventUnit = !!attacker.noCards;
+          mChecks.push({ trigger: 'kill', ctx: { player: defender, comboUsed: false, isInitial, isEvent: isEventUnit }});
         }
       }
       function runCounterMissions(idx) {
@@ -8365,7 +8392,14 @@ function cpuTurn(player) {
   const aiType = player.ai || 'type1';
   const d = rollDice();
   gs.diceValue = d;
+  _audio.dice();
   addLog(`${player.name} は行動サイコロをふった。出目は ${d} 。`, 'system');
+  updateAll();
+  setTimeout(() => { _cpuTurnMain(player, d); }, 280);
+}
+function _cpuTurnMain(player, d) {
+  if (gs.phase === 'gameover') return;
+  const aiType = player.ai || 'type1';
 
   const mv = getMove(player.unit, d);
   const sr = getShootRange(player.unit, d);
