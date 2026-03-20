@@ -622,6 +622,46 @@
   .tag-event { background: rgba(200,180,40,0.15); color: #d0b030; border: 1px solid #5a4a10; }
   .tag-spawn-a { background: rgba(26,42,74,0.6);  color: #4a9eff; border: 1px solid #2a5a9a; }
   .tag-spawn-b { background: rgba(74,26,26,0.6);  color: #ff4a4a; border: 1px solid #9a2a2a; }
+  /* カード一覧：モーダルサイズ固定 */
+  #card-modal-info .info-modal-panel { height: 80vh; }
+  #card-modal-info .info-modal-body { position: relative; }
+  /* カード一覧：2段ヘッダー */
+  #card-modal-info .info-modal-header {
+    flex-direction: column; align-items: stretch; padding: 0;
+  }
+  .card-modal-header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px 10px 20px;
+  }
+  /* カード一覧タブ */
+  .card-modal-tabs {
+    display: flex; flex-shrink: 0;
+    border-top: 1px solid #1e2a42; border-bottom: 1px solid #1e2a42;
+  }
+  .card-modal-tab {
+    flex: 1; padding: 8px 4px; font-size: 12px; font-weight: 900;
+    white-space: nowrap; letter-spacing: 0.5px; text-align: center; cursor: pointer;
+    color: #556; border-bottom: 3px solid transparent;
+    transition: all 0.15s; font-family: 'Noto Sans JP', sans-serif;
+    background: transparent; border-top: none; border-left: none; border-right: none;
+  }
+  .card-modal-tab:hover { color: #8a9ab0; }
+  .card-modal-tab.active { color: #c0d0e8; border-bottom-color: #5a9cf5; }
+  /* タブペインはabsoluteで重ねてvisibilityで切り替え（レイアウトシフトなし） */
+  .card-tab-pane {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 0 20px;
+    visibility: hidden; pointer-events: none;
+  }
+  .card-tab-pane.active {
+    visibility: visible; pointer-events: auto;
+  }
+  /* ミッションカード：3024×1701 ≒ 1.78:1 */
+  .card-list-thumb.mission-thumb { width: 159px; }
+  .card-list-thumb.mission-thumb img { aspect-ratio: 3024/1701; object-fit: contain; }
+  /* イベントカード：2268×510 ≒ 4.45:1（1.5倍） */
+  .card-list-thumb.event-thumb { width: 240px; }
+  .card-list-thumb.event-thumb img { aspect-ratio: 2268/510; object-fit: contain; }
   /* カード一覧 */
   .card-section-label {
     font-size: 11px; font-weight: 900; letter-spacing: 2px;
@@ -640,6 +680,9 @@
     cursor: pointer; transition: all 0.15s;
     display: flex; flex-direction: column;
   }
+  /* ユニット・スキルカード：1.3倍 */
+  #card-tab-unit .card-list-thumb,
+  #card-tab-skill .card-list-thumb { width: 104px; }
   .card-list-thumb:hover {
     border-color: #5a9cf5; transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(90,156,245,0.25);
@@ -1328,7 +1371,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明</div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.56</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -1345,21 +1388,6 @@
         <div class="rule-text">ゲーム開始前に、パイロットのステータス（<b style="color:#c0d0e8;">技術</b>・<b style="color:#c0d0e8;">反応</b>・<b style="color:#c0d0e8;">精神</b>）を設定します。<br>各ステータスに<b style="color:#c0d0e8;">1〜6</b>を割り振って、<b style="color:#c0d0e8;">合計12</b>にしてください。<br>ステータスは、<b style="color:#c0d0e8;">行動順</b>（<b style="color:#c0d0e8;">技術・反応</b>）や<b style="color:#c0d0e8;">開始時の手札</b>（<b style="color:#c0d0e8;">精神</b>）に影響します。<br>また、ステータスによって<b style="color:#c0d0e8;">スキルカードの効果</b>が変わります。</div>
       </div>
       <div class="rule-section">
-        <div class="rule-section-title">マップのマス</div>
-        <div class="rule-block">
-          <div class="rule-block-title">出撃マス <span class="rule-htag tag-spawn-a">A軍</span><span class="rule-htag tag-spawn-b">B軍</span></div>
-          <div class="rule-text">ゲーム開始時に<b style="color:#c0d0e8;">出撃</b>したり、撃墜後に<b style="color:#c0d0e8;">再出撃</b>したりするマスです。</div>
-        </div>
-        <div class="rule-block">
-          <div class="rule-block-title">拠点マス <span class="rule-htag tag-base">紫</span></div>
-          <div class="rule-text"><b style="color:#c0d0e8;">移動後</b>に拠点マスで止まると、<b style="color:#c0d0e8;">補給</b>またはユニットの<b style="color:#c0d0e8;">乗り換え</b>ができます。</div>
-        </div>
-        <div class="rule-block">
-          <div class="rule-block-title">イベントマス <span class="rule-htag tag-event">黄</span></div>
-          <div class="rule-text"><b style="color:#c0d0e8;">移動後</b>にイベントマスで止まると、ターン終了時にランダムな<b style="color:#c0d0e8;">イベントが発生</b>します。</div>
-        </div>
-      </div>
-      <div class="rule-section">
         <div class="rule-section-title">勝利条件</div>
         <div class="rule-text">以下のいずれかを先に達成した軍が勝利です。<ul style="margin-top:6px;"><li><b style="color:#c0d0e8;">設定したポイントを先取</b>する</li><li><b style="color:#c0d0e8;">共通ミッション5つをすべて達成</b>した後、<b style="color:#c0d0e8;">自軍ミッションを達成</b>してポイントを上回る</li></ul></div>
       </div>
@@ -1372,6 +1400,21 @@
         <div class="rule-block">
           <div class="rule-block-title">ミッション達成</div>
           <div class="rule-text"><b style="color:#c0d0e8;">1ポイント</b>または<b style="color:#c0d0e8;">2ポイント</b><br>自軍ミッションは獲得ポイントで勝利できるときしか達成できません。</div>
+        </div>
+      </div>
+      <div class="rule-section">
+        <div class="rule-section-title">マップのマス</div>
+        <div class="rule-block">
+          <div class="rule-block-title">出撃マス <span class="rule-htag tag-spawn-a">A軍</span><span class="rule-htag tag-spawn-b">B軍</span></div>
+          <div class="rule-text">ゲーム開始時に<b style="color:#c0d0e8;">出撃</b>したり、撃墜後に<b style="color:#c0d0e8;">再出撃</b>したりするマスです。</div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-block-title">拠点マス <span class="rule-htag tag-base">紫</span></div>
+          <div class="rule-text"><b style="color:#c0d0e8;">移動後</b>に拠点マスで止まると、<b style="color:#c0d0e8;">補給</b>またはユニットの<b style="color:#c0d0e8;">乗り換え</b>ができます。</div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-block-title">イベントマス <span class="rule-htag tag-event">黄</span></div>
+          <div class="rule-text"><b style="color:#c0d0e8;">移動後</b>にイベントマスで止まると、ターン終了時にランダムな<b style="color:#c0d0e8;">イベントが発生</b>します。</div>
         </div>
       </div>
       <div class="rule-section">
@@ -1417,9 +1460,10 @@
       </div>
       <div class="rule-section">
         <div class="rule-section-title">連携攻撃</div>
-        <div class="rule-text">
-          <b style="color:#c0d0e8;">隣接する</b>味方ユニットが攻撃するとき、手札から<b style="color:#c0d0e8;">カードを1枚捨てる</b>ことで<b style="color:#c0d0e8;">連携攻撃</b>ができます。<br>
-          <b style="color:#ffd700;">連携攻撃の条件</b><ul style="margin-top:6px;"><li><b style="color:#c0d0e8;">技術</b>・<b style="color:#c0d0e8;">反応</b>の両方が行動サイコロの<b style="color:#c0d0e8;">出目以上</b></li><li>攻撃対象が行動サイコロの出目に応じた<b style="color:#c0d0e8;">射撃攻撃の射程内</b>にいる</li></ul>
+        <div class="rule-text" style="margin-bottom:12px;"><b style="color:#c0d0e8;">隣接する</b>味方ユニットが攻撃するとき、手札から<b style="color:#c0d0e8;">カードを1枚捨てる</b>ことで<b style="color:#c0d0e8;">連携攻撃</b>ができます。</div>
+        <div class="rule-block">
+          <div class="rule-block-title">連携攻撃の条件</div>
+          <div class="rule-text"><ul style="margin-top:0;"><li><b style="color:#c0d0e8;">技術</b>・<b style="color:#c0d0e8;">反応</b>の両方が行動サイコロの<b style="color:#c0d0e8;">出目以上</b></li><li>攻撃対象が行動サイコロの出目に応じた<b style="color:#c0d0e8;">射撃攻撃の射程内</b>にいる</li></ul></div>
         </div>
       </div>
     </div>
@@ -1430,20 +1474,48 @@
 <div class="info-modal-overlay" id="card-modal-info">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">手札カードの一覧</div>
-      <button class="info-modal-close" onclick="closeInfoModal('card-modal-info')">✕</button>
+      <div class="card-modal-header-top">
+        <div class="info-modal-title">ゲームで使用するカード<span style="font-size:11px;font-weight:400;color:#8a9ab0;margin-left:14px;">（クリックで拡大表示）</span></div>
+        <button class="info-modal-close" onclick="closeInfoModal('card-modal-info')">✕</button>
+      </div>
+      <div class="card-modal-tabs">
+        <button class="card-modal-tab active" onclick="switchCardTab('unit')">ユニットカード</button>
+        <button class="card-modal-tab" onclick="switchCardTab('skill')">スキルカード</button>
+        <button class="card-modal-tab" onclick="switchCardTab('mission')">ミッションカード</button>
+        <button class="card-modal-tab" onclick="switchCardTab('event')">イベントカード</button>
+      </div>
     </div>
-    <div class="info-modal-body" id="card-modal-info-body" style="padding:16px 20px;">
-      <div class="card-section-label">初期ユニット</div>
-      <div class="card-sublabel">★ユニット</div>
-      <div class="card-list-grid" id="cl-initial"></div>
-      <div class="card-section-label">ユニットカード</div>
-      <div class="card-sublabel">★★ユニット</div>
-      <div class="card-list-grid" id="cl-unit2"></div>
-      <div class="card-sublabel">★★★ユニット</div>
-      <div class="card-list-grid" id="cl-unit3"></div>
-      <div class="card-section-label">スキルカード</div>
-      <div class="card-list-grid" id="cl-skill"></div>
+    <div class="info-modal-body" id="card-modal-info-body" style="padding:16px 0;">
+      <!-- ユニットカードタブ -->
+      <div class="card-tab-pane active" id="card-tab-unit">
+        <div class="card-section-label">初期ユニット</div>
+        <div class="card-list-grid" id="cl-initial"></div>
+        <div class="card-section-label">★★ユニット</div>
+        <div class="card-list-grid" id="cl-unit2"></div>
+        <div class="card-section-label">★★★ユニット</div>
+        <div class="card-list-grid" id="cl-unit3"></div>
+      </div>
+      <!-- スキルカードタブ -->
+      <div class="card-tab-pane" id="card-tab-skill">
+        <div class="card-section-label">技術系スキル</div>
+        <div class="card-list-grid" id="cl-skill-tech"></div>
+        <div class="card-section-label">反応系スキル</div>
+        <div class="card-list-grid" id="cl-skill-react"></div>
+        <div class="card-section-label">精神系スキル</div>
+        <div class="card-list-grid" id="cl-skill-spirit"></div>
+      </div>
+      <!-- ミッションカードタブ -->
+      <div class="card-tab-pane" id="card-tab-mission">
+        <div class="card-section-label">1ポイント獲得</div>
+        <div class="card-list-grid" id="cl-mission1"></div>
+        <div class="card-section-label">2ポイント獲得</div>
+        <div class="card-list-grid" id="cl-mission2"></div>
+      </div>
+      <!-- イベントカードタブ -->
+      <div class="card-tab-pane" id="card-tab-event">
+        <div class="card-section-label">イベントカード</div>
+        <div class="card-list-grid" id="cl-event"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2889,6 +2961,21 @@ function openInfoModal(id) {
     overlay._built = true;
     _buildCardList();
   }
+  // カード一覧を開くたびにユニットカードタブをアクティブに戻す
+  if (id === 'card-modal-info') {
+    switchCardTab('unit');
+  }
+}
+
+function switchCardTab(tab) {
+  ['unit','skill','mission','event'].forEach(t => {
+    const pane = document.getElementById('card-tab-' + t);
+    if (pane) pane.classList.toggle('active', t === tab);
+  });
+  document.querySelectorAll('.card-modal-tab').forEach((btn, i) => {
+    const tabs = ['unit','skill','mission','event'];
+    btn.classList.toggle('active', tabs[i] === tab);
+  });
 }
 
 function closeInfoModal(id) {
@@ -2916,19 +3003,7 @@ function _buildCardList() {
     { imgs: ['images/card/card11.png'] }, { imgs: ['images/card/card12.png'] },
     { imgs: ['images/card/card13.png'] }, { imgs: ['images/card/card14.png'] },
   ];
-  const skillDefs = [
-    { imgs: ['images/card/card15.png','images/card/card16.png','images/card/card17.png','images/card/card18.png'] },
-    { imgs: ['images/card/card19.png','images/card/card20.png','images/card/card21.png','images/card/card22.png'] },
-    { imgs: ['images/card/card23.png','images/card/card24.png','images/card/card25.png','images/card/card26.png'] },
-    { imgs: ['images/card/card27.png','images/card/card28.png','images/card/card29.png','images/card/card30.png'] },
-    { imgs: ['images/card/card31.png','images/card/card32.png','images/card/card33.png','images/card/card34.png'] },
-    { imgs: ['images/card/card35.png','images/card/card36.png','images/card/card37.png','images/card/card38.png'] },
-    { imgs: ['images/card/card39.png','images/card/card40.png','images/card/card41.png','images/card/card42.png'] },
-    { imgs: ['images/card/card43.png','images/card/card44.png'] },
-    { imgs: ['images/card/card45.png','images/card/card46.png'] },
-    { imgs: ['images/card/card47.png','images/card/card48.png'] },
-    { imgs: ['images/card/card49.png','images/card/card50.png'] },
-  ];
+  const skillDefs = null; // 旧定義（削除済み・tech/react/spiritに分割）
 
   function makeThumb(container, cardDef, isSkill) {
     const div = document.createElement('div');
@@ -2957,7 +3032,61 @@ function _buildCardList() {
   initialDefs.forEach(c => makeThumb(document.getElementById('cl-initial'), c, false));
   unit2Defs.forEach(c => makeThumb(document.getElementById('cl-unit2'), c, false));
   unit3Defs.forEach(c => makeThumb(document.getElementById('cl-unit3'), c, false));
-  skillDefs.forEach(c => makeThumb(document.getElementById('cl-skill'), c, true));
+
+  // スキルカード：技術・反応・精神に分類
+  const skillTechDefs = [
+    { imgs: ['images/card/card15.png','images/card/card16.png','images/card/card17.png','images/card/card18.png'] },
+    { imgs: ['images/card/card19.png','images/card/card20.png','images/card/card21.png','images/card/card22.png'] },
+    { imgs: ['images/card/card23.png','images/card/card24.png','images/card/card25.png','images/card/card26.png'] },
+  ];
+  const skillReactDefs = [
+    { imgs: ['images/card/card27.png','images/card/card28.png','images/card/card29.png','images/card/card30.png'] },
+    { imgs: ['images/card/card31.png','images/card/card32.png','images/card/card33.png','images/card/card34.png'] },
+    { imgs: ['images/card/card35.png','images/card/card36.png','images/card/card37.png','images/card/card38.png'] },
+  ];
+  const skillSpiritDefs = [
+    { imgs: ['images/card/card39.png','images/card/card40.png','images/card/card41.png','images/card/card42.png'] },
+    { imgs: ['images/card/card43.png','images/card/card44.png'] },
+    { imgs: ['images/card/card45.png','images/card/card46.png'] },
+    { imgs: ['images/card/card47.png','images/card/card48.png'] },
+    { imgs: ['images/card/card49.png','images/card/card50.png'] },
+  ];
+  skillTechDefs.forEach(c => makeThumb(document.getElementById('cl-skill-tech'), c, true));
+  skillReactDefs.forEach(c => makeThumb(document.getElementById('cl-skill-react'), c, true));
+  skillSpiritDefs.forEach(c => makeThumb(document.getElementById('cl-skill-spirit'), c, true));
+
+  // ミッションカード
+  function makeMissionThumb(container, img) {
+    const div = document.createElement('div');
+    div.className = 'card-list-thumb mission-thumb';
+    const el = document.createElement('img');
+    el.src = img;
+    div.appendChild(el);
+    div.onclick = () => _showCardListZoom(img);
+    container.appendChild(div);
+  }
+  const mission1 = document.getElementById('cl-mission1');
+  const mission2 = document.getElementById('cl-mission2');
+  Object.values(MISSION_DB).forEach(m => {
+    if (m.points === 1) makeMissionThumb(mission1, m.img);
+    else if (m.points === 2) makeMissionThumb(mission2, m.img);
+  });
+
+  // イベントカード（event01〜event30）
+  function makeEventThumb(container, img) {
+    const div = document.createElement('div');
+    div.className = 'card-list-thumb event-thumb';
+    const el = document.createElement('img');
+    el.src = img;
+    div.appendChild(el);
+    div.onclick = () => _showCardListZoom(img);
+    container.appendChild(div);
+  }
+  const evContainer = document.getElementById('cl-event');
+  for (let i = 1; i <= 30; i++) {
+    const id = 'event' + String(i).padStart(2, '0');
+    makeEventThumb(evContainer, `images/event/${id}.png`);
+  }
 }
 
 // カードズーム（カード一覧用：閉じたらコールバック）
