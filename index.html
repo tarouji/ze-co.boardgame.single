@@ -1180,8 +1180,8 @@
         </div>
       </div>
       <div class="ms-section">
-        <div class="ms-label">パイロット名</div>
-        <input type="text" class="ms-name-input" id="ms-player-name" placeholder="プレイヤー名を入力" maxlength="12">
+        <div class="ms-label">プレイヤー名</div>
+        <input type="text" class="ms-name-input" id="ms-player-name" placeholder="名前を入力" maxlength="12">
       </div>
       <div class="ms-section">
         <div class="ms-label">ステータス設定</div>
@@ -1298,10 +1298,9 @@
       </div>
     </div>
     <div class="ss-section">
-      <div class="ss-label">パイロット名</div>
+      <div class="ss-label">プレイヤー名</div>
       <div class="ss-name-row">
-        <label>名前</label>
-        <input type="text" class="ss-name-input" id="ss-player-name" placeholder="プレイヤー名を入力" maxlength="12">
+        <input type="text" class="ss-name-input" id="ss-player-name" placeholder="名前を入力" maxlength="12">
       </div>
     </div>
     <div class="ss-section">
@@ -1371,7 +1370,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.63</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.64</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -1385,7 +1384,7 @@
       </div>
       <div class="rule-section">
         <div class="rule-section-title">ステータスの設定</div>
-        <div class="rule-text">ゲーム開始前に、パイロットのステータス（<b style="color:#c0d0e8;">技術</b>・<b style="color:#c0d0e8;">反応</b>・<b style="color:#c0d0e8;">精神</b>）を設定します。<br>各ステータスに<b style="color:#c0d0e8;">1〜6</b>を割り振って、<b style="color:#c0d0e8;">合計12</b>にしてください。<br>ステータスは、<b style="color:#c0d0e8;">行動順</b>（<b style="color:#c0d0e8;">技術・反応</b>）や<b style="color:#c0d0e8;">開始時の手札</b>（<b style="color:#c0d0e8;">精神</b>）に影響します。<br>また、ステータスによって<b style="color:#c0d0e8;">スキルカードの効果</b>が変わります。</div>
+        <div class="rule-text">ゲーム開始前に、プレイヤーのステータス（<b style="color:#c0d0e8;">技術</b>・<b style="color:#c0d0e8;">反応</b>・<b style="color:#c0d0e8;">精神</b>）を設定します。<br>各ステータスに<b style="color:#c0d0e8;">1〜6</b>を割り振って、<b style="color:#c0d0e8;">合計12</b>にしてください。<br>ステータスは、<b style="color:#c0d0e8;">行動順</b>（<b style="color:#c0d0e8;">技術・反応</b>）や<b style="color:#c0d0e8;">開始時の手札</b>（<b style="color:#c0d0e8;">精神</b>）に影響します。<br>また、ステータスによって<b style="color:#c0d0e8;">スキルカードの効果</b>が変わります。</div>
       </div>
       <div class="rule-section">
         <div class="rule-section-title">勝利条件</div>
@@ -2530,7 +2529,7 @@ function ssStartGame() {
     ? document.getElementById('ms-player-name')
     : document.getElementById('ss-player-name');
   const name = nameEl ? nameEl.value.trim() : '';
-  if (!name) { alert('パイロット名を入力してください'); return; }
+  if (!name) { alert('プレイヤー名を入力してください'); return; }
   const used = ssStats.tech + ssStats.react + ssStats.spirit;
   if (used !== SS_TOTAL) { alert(`ステータスポイントを残さず振り分けてください（残り${SS_TOTAL - used}）`); return; }
 
