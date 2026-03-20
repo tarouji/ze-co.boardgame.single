@@ -1371,7 +1371,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.61</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.63</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2980,6 +2980,8 @@ function switchCardTab(tab) {
     const tabs = ['unit','skill','mission','event'];
     btn.classList.toggle('active', tabs[i] === tab);
   });
+  const body = document.getElementById('card-modal-info-body');
+  if (body) body.scrollTop = 0;
 }
 
 function closeInfoModal(id) {
@@ -9306,24 +9308,24 @@ canvas.addEventListener('click', e => {
   }
 
   const cp = getCurrentPlayer();
-  if (!cp || !cp.isHuman) return;
   if (gs.phase === 'move') {
-    if (gs.moveRange.find(h => h.col === hex.col && h.row === hex.row)) executeMove(hex.col, hex.row);
+    if (cp && cp.isHuman && gs.moveRange.find(h => h.col === hex.col && h.row === hex.row)) executeMove(hex.col, hex.row);
   } else if (gs.phase === 'shoot') {
-    const t = gs.shootTargets.find(t => t.col === hex.col && t.row === hex.row);
-    if (t) {
-      gs.shootRangeHexes = [];
-      gs.shootTargets = [];
-      const cp = getCurrentPlayer();
-      showPreDamagePhase(cp, t.player, 'shoot');
+    if (cp && cp.isHuman) {
+      const t = gs.shootTargets.find(t => t.col === hex.col && t.row === hex.row);
+      if (t) {
+        gs.shootRangeHexes = [];
+        gs.shootTargets = [];
+        showPreDamagePhase(cp, t.player, 'shoot');
+      }
     }
   } else if (gs.phase === 'melee') {
-    if (gs.meleeTargets) {
+    if (cp && cp.isHuman && gs.meleeTargets) {
       const t = gs.meleeTargets.find(e => e.unit.col === hex.col && e.unit.row === hex.row);
       if (t) executeMeleeFromMap(t);
     }
   } else if (gs.phase !== 'evac_swap') {
-    // No game action → check if unit clicked for card zoom
+    // No game action → check if unit clicked for card zoom（ターン問わず）
     const clickedUnit = getUnitAt(hex.col, hex.row);
     if (clickedUnit && clickedUnit.unit) {
       const cardEntry = Object.values(CARD_DB).find(c => c.type === 'unit' && c.unitId === clickedUnit.unit.templateId);
