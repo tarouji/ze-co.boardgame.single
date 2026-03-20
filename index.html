@@ -1371,7 +1371,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.56</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.59</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -3596,11 +3596,13 @@ const attackCtx = {
   attacker: null,
   target: null,
   baseDmg: 0,
-  comboBonus: 0,     // 連携攻撃ダメージ加算
-  defReduction: 0,   // 防御によるダメージ減算
-  evadeSuccess: false, // 回避成功フラグ
-  attackType: null,   // 'melee' or 'shoot'
-  comboUsed: null,    // Set of player indices who already used combo this attack
+  comboBonus: 0,
+  defReduction: 0,
+  evadeSuccess: false,
+  attackType: null,
+  comboUsed: null,
+  _cpuUsedDmgUp: false,   // CPU Type1/2/5：ダメージアップ使用済みフラグ
+  _cpuUsedDefend: false,  // CPU Type1/2/5：防御使用済みフラグ
 };
 
 function resetAttackCtx() {
@@ -3613,6 +3615,8 @@ function resetAttackCtx() {
   attackCtx.evadeSuccess = false;
   attackCtx.attackType = null;
   attackCtx.comboUsed = null;
+  attackCtx._cpuUsedDmgUp = false;
+  attackCtx._cpuUsedDefend = false;
 }
 
 // ============================================================
@@ -4682,7 +4686,7 @@ function showMissionAchievement(missionId, team, callback) {
   diceEl.style.fontSize = '48px';
   diceEl.style.color = team === 'a' ? '#4a9eff' : '#ff4a4a';
   diceEl.style.textShadow = team === 'a' ? '0 0 30px rgba(74,158,255,0.6)' : '0 0 30px rgba(255,74,74,0.6)';
-  effectEl.textContent = `${teamName} ミッション達成！`;
+  effectEl.textContent = `${teamName} ミッション達成`;
   effectEl.className = 'skill-effect-text';
   effectEl.style.color = team === 'a' ? '#4a9eff' : '#ff4a4a';
   effectEl.style.background = team === 'a' ? 'rgba(74,158,255,0.1)' : 'rgba(255,74,74,0.1)';
@@ -6377,6 +6381,8 @@ function showPreDamagePhase(attacker, target, attackType) {
   attackCtx.comboBonus = 0;
   attackCtx.defReduction = 0;
   attackCtx.evadeSuccess = false;
+  attackCtx._cpuUsedDmgUp = false;
+  attackCtx._cpuUsedDefend = false;
   if (attackType === 'melee') {
     attackCtx.baseDmg = getMeleeDmg(attacker.unit, gs.diceValue) + turnBuffs.dmgBonus;
   } else {
@@ -6442,11 +6448,14 @@ function preDamageRotation_Attacker() {
       const evaded = attackCtx.evadeSuccess;
       const canKillDmgUp = target && !target.destroyed && attackCtx.baseDmg >= target.unit.hp;
       const dmgUpProb = (aiType === 'type1' || aiType === 'type2' || aiType === 'type5') ? 0.5 : 1.0;
-      if (!noTarget && !evaded && !canKillDmgUp && Math.random() < dmgUpProb) {
+      // Type1/2/5は1ターン1回のみ（既に使用済みならスキップ）
+      const alreadyUsedDmgUp = attackCtx._cpuUsedDmgUp;
+      const multiUse = (aiType === 'type3' || aiType === 'type4');
+      if (!noTarget && !evaded && !canKillDmgUp && Math.random() < dmgUpProb && (multiUse || !alreadyUsedDmgUp)) {
+        attackCtx._cpuUsedDmgUp = true;
         useSkillCard(attacker, dmgUpCard, () => {
           recalcPreDamageDmg();
-          
-          preDamageRotation_Attacker(); // ダメージアップが複数あれば繰り返す
+          preDamageRotation_Attacker(); // Type3/4は複数枚使用可
         });
         return;
       }
@@ -6495,16 +6504,19 @@ function preDamageRotation_Defender() {
     const aiType = defender.ai || 'type1';
     if (['type2','type3','type4','type5'].includes(aiType)) {
       const evadeCards = getUsableSkills(defender, ['B']).filter(cid => CARD_DB[cid].name === '回避');
-      const defCards   = getUsableSkills(defender, ['B']).filter(cid => CARD_DB[cid].name === '防御');
       const evadeProb  = (aiType === 'type2' || aiType === 'type4') ? 0.5 : 1.0;
       const defendProb = (aiType === 'type2' || aiType === 'type4') ? 0.5 : 1.0;
+      const multiUse   = (aiType === 'type3' || aiType === 'type4');
+
+      // Type1/2/5は防御を1回のみ（attackCtxフラグで管理）
+      if (!multiUse && attackCtx._cpuUsedDefend) {
+        preDamageRotation_ComboAllies(0); return;
+      }
 
       function tryEvade(next) {
         if (evadeCards.length === 0 || Math.random() > evadeProb) { next(); return; }
         useDefenseSkill(defender, evadeCards[0], () => {
           recalcPreDamageDmg();
-          
-          // 回避成功なら防御不要、失敗なら防御へ
           if (attackCtx.evadeSuccess) {
             preDamageRotation_Attacker();
           } else {
@@ -6513,11 +6525,12 @@ function preDamageRotation_Defender() {
         });
       }
       function tryDefend() {
-        if (defCards.length === 0) { preDamageRotation_ComboAllies(0); return; }
+        const remaining = getUsableSkills(defender, ['B']).filter(cid => CARD_DB[cid].name === '防御');
+        if (remaining.length === 0) { preDamageRotation_ComboAllies(0); return; }
         if (Math.random() > defendProb) { preDamageRotation_ComboAllies(0); return; }
-        useDefenseSkill(defender, defCards[0], () => {
+        attackCtx._cpuUsedDefend = true;
+        useDefenseSkill(defender, remaining[0], () => {
           recalcPreDamageDmg();
-          
           preDamageRotation_Attacker();
         });
       }
@@ -6850,6 +6863,7 @@ function resolveAttackDamage() {
 function postDamageRotation_Start(attacker, defender) {
   gs._postDmgAttacker = attacker;
   gs._postDmgDefender = defender;
+  gs._cpuUsedCounter = false;
   postDamageRotation_Attacker();
 }
 
@@ -6919,11 +6933,17 @@ function postDamageRotation_Defender() {
       action:() => postDamageRotation_Others(0) });
     updateAll(); setButtons(btns); return;
   } else {
-    // CPU反撃: Type1/2は50%、Type3/4/5は100%
+    // CPU反撃: Type1/2は50%、Type3/4/5は100%。Type3/4は複数枚使用可
     const defAiType = defender.ai || 'type1';
     if (['type1','type2','type3','type4','type5'].includes(defAiType)) {
       const counterProb = (defAiType === 'type1' || defAiType === 'type2' || defAiType === 'type4') ? 0.5 : 1.0;
+      const multiUse = (defAiType === 'type3' || defAiType === 'type4');
+      // Type1/2/5は1回のみ（gs._cpuUsedCounterで管理）
+      if (!multiUse && gs._cpuUsedCounter) {
+        postDamageRotation_Others(0); return;
+      }
       if (usableC.length > 0 && Math.random() < counterProb) {
+        gs._cpuUsedCounter = true;
         execCounterAttack(defender, attacker, usableC[0]);
         return;
       }
@@ -8478,6 +8498,7 @@ function finishEndTurn() {
   gs.diceValue = null; gs.moveRange = []; gs.shootTargets = []; gs.shootRangeHexes = []; gs.meleeTargets = null; gs.meleeRangeHexes = [];
   gs._evacCallback = null; gs.meleeReturnPhase = null; gs._postMoveOnBase = false; gs.currentEventText = null;
   gs._postDmgAttacker = null; gs._postDmgDefender = null;
+  gs._cpuUsedCounter = false;
   gs._landedOnEvent = false; gs._eventMoveCallback = null;
 
   // Extra turn (event35): same player goes again, no turnCount increment
