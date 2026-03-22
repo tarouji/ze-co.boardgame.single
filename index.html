@@ -1377,7 +1377,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.75</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.76</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2656,7 +2656,13 @@ function msSwitchTab(tab) {
   if (tabEl) tabEl.classList.add('active');
   msRenderTab(tab);
   const content = document.getElementById('ms-tab-content');
-  if (content) content.scrollTop = 0;
+  if (content) {
+    if (tab === 'log') {
+      content.scrollTop = content.scrollHeight;
+    } else {
+      content.scrollTop = 0;
+    }
+  }
 }
 
 function msRenderTab(tab) {
@@ -2946,6 +2952,8 @@ function msAddLog(text, type) {
   // ログタブが開いていれば即時更新
   if (_msCurrentTab === 'log') {
     msRenderTab('log');
+    const content = document.getElementById('ms-tab-content');
+    if (content) content.scrollTop = content.scrollHeight;
   }
 }
 
