@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.12</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.14</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -3077,7 +3077,8 @@ function msRenderEvents(el) {
     const isThirdForce = _THIRD_FORCE.has(eid);
     const isActive = (ev.type === 'continuous' && gs.activeEvent === eid)
                   || (!isThirdForce && ev.type === 'instant' && !gs.doneInstantEvents.has(eid))
-                  || (isThirdForce && gs.activeThirdForceEvents && eid in gs.activeThirdForceEvents);
+                  || (isThirdForce && gs.activeThirdForceEvents && eid in gs.activeThirdForceEvents)
+                  || (isThirdForce && gs.currentEventId === eid); // 演出中（まだactiveThirdForceEventsに未登録）
     if (!isActive) {
       const badge = document.createElement('div');
       badge.className = 'ms-done-badge';
@@ -5387,7 +5388,8 @@ function updateEventPanel() {
     const isThirdForce = ['event31','event32','event33','event34'].includes(eid);
     const isActive = (ev.type === 'continuous' && gs.activeEvent === eid)
                   || (!isThirdForce && ev.type === 'instant' && !gs.doneInstantEvents.has(eid))
-                  || (isThirdForce && eid in gs.activeThirdForceEvents);
+                  || (isThirdForce && eid in gs.activeThirdForceEvents)
+                  || (isThirdForce && gs.currentEventId === eid); // 演出中（まだactiveThirdForceEventsに未登録）
     if (!isActive) {
       const badge = document.createElement('div');
       badge.className = 'event-done-badge';
@@ -8522,7 +8524,12 @@ function applyDamage(target, dmg, attacker) {
     target.destroyed = true;  // ゲームロジックは即時
     // 第三勢力撃墜 → event31-34 の「終了」バッジを表示
     for (const [eid, pidx] of Object.entries(gs.activeThirdForceEvents)) {
-      if (pidx === target.idx) { delete gs.activeThirdForceEvents[eid]; updateEventPanel(); }
+      if (pidx === target.idx) {
+        delete gs.activeThirdForceEvents[eid];
+        // currentEventIdが同じIDなら終了済みにする
+        if (gs.currentEventId === eid) gs.currentEventId = null;
+        updateEventPanel();
+      }
     }
     if (target.unit.sourceCardId) {
       gs.discard.push(target.unit.sourceCardId);
