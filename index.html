@@ -1377,7 +1377,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.72</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.73</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2538,7 +2538,7 @@ function ssStartGame() {
   const name = nameEl ? nameEl.value.trim() : '';
   if (!name) { alert('プレイヤー名を入力してください'); return; }
   const used = ssStats.tech + ssStats.react + ssStats.spirit;
-  if (used !== SS_TOTAL) { alert(`ステータスポイントを残さず振り分けてください（残り${SS_TOTAL - used}）`); return; }
+  if (used !== SS_TOTAL) { alert(`ステータスは合計12にしてください（残り${SS_TOTAL - used}）`); return; }
 
   gameConfig.playerTeam = ssTeam;
   gameConfig.playerName = name;
