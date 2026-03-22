@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.10</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.12</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -5240,6 +5240,7 @@ function triggerEvent(player, callback) {
       }
       if (gs.activeEvent) clearContinuousEvent();
       gs.currentEventId = eventId;
+      updateEventPanel();
       showEventOverlay(eventId, () => {
         addLog('対象がいなかった。（イベント終了）', 'log-event');
         updateEventPanel();
@@ -5274,6 +5275,9 @@ function triggerEvent(player, callback) {
 
   // Set new current event
   gs.currentEventId = eventId;
+
+  // イベントカードをパネルに即座に表示（演出・効果処理中も見える）
+  updateEventPanel();
 
   // Show event card overlay, then execute effect
   showEventOverlay(eventId, () => {
@@ -5362,6 +5366,10 @@ function updateEventPanel() {
     evSlot.className = 'card-slot event-card';
     evSlot.innerHTML = `<img src="images/event/event00.png">`;
     eventSlots.appendChild(evSlot);
+    // モバイル版も更新
+    if (typeof isMobile === 'function' && isMobile() && typeof _msCurrentTab !== 'undefined' && _msCurrentTab === 'event') {
+      msSwitchTab('event');
+    }
     return;
   }
   // Show history newest-first
@@ -5389,6 +5397,11 @@ function updateEventPanel() {
     // Click/hover zoom for all event cards
     evSlot.onclick = () => showCardZoom(imgSrc, true);
     eventSlots.appendChild(evSlot);
+  }
+  // モバイル版：イベントタブが開いていれば即時更新
+  if (typeof isMobile === 'function' && isMobile() && typeof _msCurrentTab !== 'undefined' && _msCurrentTab === 'event') {
+    const content = document.getElementById('ms-tab-content');
+    if (content) { content.innerHTML = ''; msRenderEvents(content); }
   }
 }
 
