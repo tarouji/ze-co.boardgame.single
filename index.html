@@ -1069,25 +1069,31 @@
 
   /* タブバー */
   #ms-tab-bar {
-    flex-shrink: 0; display: flex;
+    flex-shrink: 0; display: flex; flex-wrap: wrap;
     border-bottom: 1px solid #1e2a42; background: #0c1220;
-    overflow-x: auto; overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
-  #ms-tab-bar::-webkit-scrollbar { display: none; }
   .ms-tab {
     flex: 0 0 auto; padding: 6px 10px; border: none;
-    border-right: 1px solid #1e2a42;
+    border-right: 1px solid #1e2a42; border-bottom: 1px solid #1e2a42;
     background: transparent; color: #445; font-size: 10px; font-weight: 700;
     cursor: pointer; text-align: center;
     font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s;
     white-space: nowrap;
   }
-  .ms-tab:last-child { border-right: none; }
-  .ms-tab.active { color: #c0d0e8; border-bottom: 2px solid #5a9cf5; }
-
-  /* 選択ボタンエリア */
+  .ms-tab.active { color: #c0d0e8; background: rgba(90,156,245,0.08); border-bottom-color: #5a9cf5; }
+  /* ユニット一覧（タブ） */
+  .ms-unit-card {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid #1a2235;
+  }
+  .ms-unit-card:last-child { border-bottom: none; }
+  .ms-unit-card.active-turn { background: rgba(90,156,245,0.05); border-radius: 4px; padding: 6px 4px; }
+  .ms-unit-thumb { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #2a3a55; flex-shrink: 0; background: #1a2235; cursor: pointer; }
+  .ms-unit-info { flex: 1; min-width: 0; }
+  .ms-unit-name { font-size: 12px; font-weight: 900; color: #c0d0e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ms-unit-stars-hp { font-size: 11px; font-weight: 700; color: #ffd700; margin-top: 1px; }
+  .ms-unit-pilot { font-size: 10px; color: #8a9ab0; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ms-unit-stats { font-size: 10px; color: #556; margin-top: 1px; }
   #ms-buttons-area {
     flex-shrink: 0; padding: 6px 8px; border-bottom: 1px solid #1e2a42;
     display: flex; flex-direction: column; gap: 4px;
@@ -1370,7 +1376,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.64</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.68</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2722,13 +2728,13 @@ function msRenderUnits(el) {
     info.className = 'ms-unit-info';
     const name = hasUnit ? p.unit.name : '未出撃';
     const stars = hasUnit ? (typeof p.unit.level === 'number' ? '★'.repeat(p.unit.level) : '☆') : '';
-    const hp = hasUnit ? `耐久値 ${p.unit.hp}` : '';
-    const pct = hasUnit && p.unit.maxHp ? p.unit.hp / p.unit.maxHp * 100 : 0;
-    const hpClass = pct > 50 ? 'hp-high' : pct > 25 ? 'hp-mid' : 'hp-low';
+    const hp = hasUnit ? p.unit.hp : '';
+    const handCount = p.noCards ? '' : p.hand.length;
     info.innerHTML = `
-      <div class="ms-unit-name">${p.name}（${name}）</div>
-      <div class="ms-unit-sub">${stars} ${hp} 技${p.stats.tech} 反${p.stats.react} 精${p.stats.spirit}</div>
-      ${hasUnit ? `<div class="ms-unit-hp-bar"><div class="ms-unit-hp-fill ${hpClass}" style="width:${pct}%"></div></div>` : ''}
+      <div class="ms-unit-name">${name}</div>
+      ${hasUnit ? `<div class="ms-unit-stars-hp">${stars} 耐${hp}</div>` : ''}
+      <div class="ms-unit-pilot">${p.name}</div>
+      <div class="ms-unit-stats">技${p.stats.tech} 反${p.stats.react} 精${p.stats.spirit}${p.noCards ? '' : ` 手札${handCount}`}</div>
     `;
     div.appendChild(info);
     el.appendChild(div);
@@ -3088,7 +3094,9 @@ function _buildCardList() {
     container.appendChild(div);
   }
   const evContainer = document.getElementById('cl-event');
+  const skipEvents = new Set([2, 4, 6, 8]);
   for (let i = 1; i <= 30; i++) {
+    if (skipEvents.has(i)) continue;
     const id = 'event' + String(i).padStart(2, '0');
     makeEventThumb(evContainer, `images/event/${id}.png`);
   }
@@ -3967,13 +3975,13 @@ function drawUnits() {
     ctx.fillStyle = '#fff';
     ctx.fillText(nameText, x, y - sz/2 + 8);
 
-    // 耐久値X (inside circle, bottom area — no ★)
-    const hpTag = `耐久値 ${p.unit.hp}`;
-    ctx.font = 'bold 7px Noto Sans JP'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    // HP数字 (inside circle, bottom area)
+    const hpTag = `${p.unit.hp}`;
+    ctx.font = 'bold 13px Noto Sans JP'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
-    ctx.strokeText(hpTag, x, y + sz/2 - 8);
+    ctx.strokeText(hpTag, x, y + sz/2 - 4);
     ctx.fillStyle = '#ffd700';
-    ctx.fillText(hpTag, x, y + sz/2 - 8);
+    ctx.fillText(hpTag, x, y + sz/2 - 4);
   }
 }
 
