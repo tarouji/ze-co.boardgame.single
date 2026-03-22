@@ -1276,7 +1276,6 @@
     <div id="ms-map-area"></div>
     <!-- 右側：ボタン＋タブ -->
     <div id="ms-right-area">
-      <div id="ms-buttons-area"></div>
       <div id="ms-tab-bar">
         <button class="ms-tab" onclick="msSwitchTab('unit')" id="ms-tab-unit">ユニット</button>
         <button class="ms-tab" onclick="msSwitchTab('hand')" id="ms-tab-hand">手札</button>
@@ -1285,6 +1284,7 @@
         <button class="ms-tab" onclick="msSwitchTab('event')" id="ms-tab-event">イベント</button>
         <button class="ms-tab" onclick="msSwitchTab('log')" id="ms-tab-log">ログ</button>
       </div>
+      <div id="ms-buttons-area"></div>
       <div id="ms-tab-content"></div>
     </div>
   </div>
@@ -1377,7 +1377,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.8.76</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.7</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -1662,7 +1662,7 @@ const _audio = (() => {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(900, now);
         osc.frequency.exponentialRampToValueAtTime(180, now + 0.18);
-        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.setValueAtTime(0.306, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
         osc.start(now); osc.stop(now + 0.2);
       } catch(e) {}
@@ -1685,7 +1685,7 @@ const _audio = (() => {
         filter.frequency.exponentialRampToValueAtTime(800, now + dur);
         filter.Q.value = 0.8;
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.setValueAtTime(0.374, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         src.connect(filter); filter.connect(gain); gain.connect(ac.destination);
         src.start(now); src.stop(now + dur + 0.02);
@@ -1717,7 +1717,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 200;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.15, now);
+        ngain.gain.setValueAtTime(0.255, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.02);
@@ -1748,8 +1748,8 @@ const _audio = (() => {
         lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.18, now + 0.05);
-        gain.gain.setValueAtTime(0.18, now + dur - 0.1);
+        gain.gain.linearRampToValueAtTime(0.306, now + 0.05);
+        gain.gain.setValueAtTime(0.306, now + dur - 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         lfo.start(now); osc.start(now);
@@ -1789,15 +1789,15 @@ const _audio = (() => {
         filt2.type = 'lowpass'; filt2.frequency.value = 200;
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.04, now + 0.2);
-        gain2.gain.linearRampToValueAtTime(0.06, now + 0.5);
+        gain2.gain.linearRampToValueAtTime(0.068, now + 0.2);
+        gain2.gain.linearRampToValueAtTime(0.102, now + 0.5);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc2.connect(filt2); filt2.connect(gain2); gain2.connect(ac.destination);
         // メインゲイン
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.22, now + 0.12);
-        gain.gain.setValueAtTime(0.22, now + dur - 0.15);
+        gain.gain.linearRampToValueAtTime(0.374, now + 0.12);
+        gain.gain.setValueAtTime(0.374, now + dur - 0.15);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         lfo.start(now); osc.start(now); osc2.start(now);
@@ -1817,7 +1817,7 @@ const _audio = (() => {
         osc.frequency.linearRampToValueAtTime(2400, now + 0.06);
         osc.frequency.exponentialRampToValueAtTime(1200, now + 0.18);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.setValueAtTime(0.374, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + 0.25);
@@ -1828,7 +1828,7 @@ const _audio = (() => {
         osc2.frequency.exponentialRampToValueAtTime(4800, now + 0.12);
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.1, now + 0.06);
+        gain2.gain.linearRampToValueAtTime(0.17, now + 0.06);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
         osc2.connect(gain2); gain2.connect(ac.destination);
         osc2.start(now + 0.04); osc2.stop(now + 0.22);
@@ -1845,7 +1845,7 @@ const _audio = (() => {
         osc.frequency.setValueAtTime(200, now);
         osc.frequency.exponentialRampToValueAtTime(60, now + 0.2);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.setValueAtTime(0.34, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + 0.3);
@@ -1858,7 +1858,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 300;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.15, now);
+        ngain.gain.setValueAtTime(0.255, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.02);
@@ -1891,7 +1891,7 @@ const _audio = (() => {
         filt2.type = 'bandpass'; filt2.frequency.value = 300; filt2.Q.value = 0.8;
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.15, now + 0.05);
+        gain2.gain.linearRampToValueAtTime(0.255, now + 0.05);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
         osc2.connect(filt2); filt2.connect(gain2); gain2.connect(ac.destination);
         osc2.start(now + 0.03); osc2.stop(now + 0.5);
@@ -1904,7 +1904,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 500;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.12, now);
+        ngain.gain.setValueAtTime(0.204, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur3);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur3 + 0.02);
@@ -1927,8 +1927,8 @@ const _audio = (() => {
           const t = now + times[i];
           const dur = i < freqs.length - 1 ? 0.2 : 0.9;
           gain.gain.setValueAtTime(0, t);
-          gain.gain.linearRampToValueAtTime(0.2, t + 0.02);
-          gain.gain.setValueAtTime(0.2, t + dur - 0.08);
+          gain.gain.linearRampToValueAtTime(0.34, t + 0.02);
+          gain.gain.setValueAtTime(0.34, t + dur - 0.08);
           gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
           osc.connect(gain); gain.connect(ac.destination);
           osc.start(t); osc.stop(t + dur + 0.05);
@@ -1938,7 +1938,7 @@ const _audio = (() => {
           osc2.frequency.value = freq * 2;
           const gain2 = ac.createGain();
           gain2.gain.setValueAtTime(0, t);
-          gain2.gain.linearRampToValueAtTime(0.07, t + 0.02);
+          gain2.gain.linearRampToValueAtTime(0.119, t + 0.02);
           gain2.gain.exponentialRampToValueAtTime(0.001, t + dur);
           osc2.connect(gain2); gain2.connect(ac.destination);
           osc2.start(t); osc2.stop(t + dur + 0.05);
@@ -1957,7 +1957,7 @@ const _audio = (() => {
         osc.frequency.setValueAtTime(1200, now);
         osc.frequency.exponentialRampToValueAtTime(80, now + dur);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.setValueAtTime(0.425, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + dur + 0.05);
@@ -1971,7 +1971,7 @@ const _audio = (() => {
         nfilt.frequency.exponentialRampToValueAtTime(100, now + dur);
         nfilt.Q.value = 2;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.1, now);
+        ngain.gain.setValueAtTime(0.17, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.05);
@@ -2002,8 +2002,8 @@ const _audio = (() => {
         lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
-        gain.gain.setValueAtTime(0.2, now + dur - 0.1);
+        gain.gain.linearRampToValueAtTime(0.34, now + 0.08);
+        gain.gain.setValueAtTime(0.34, now + dur - 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         // ノイズ爆発成分（最初の一発）
@@ -2014,7 +2014,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 500;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.18, now);
+        ngain.gain.setValueAtTime(0.306, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         lfo.start(now); osc.start(now); nsrc.start(now);
@@ -2038,8 +2038,8 @@ const _audio = (() => {
           const t = now + times[i];
           const dur = i < 3 ? 0.18 : 0.55;
           gain.gain.setValueAtTime(0, t);
-          gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
-          gain.gain.setValueAtTime(0.22, t + dur - 0.05);
+          gain.gain.linearRampToValueAtTime(0.374, t + 0.02);
+          gain.gain.setValueAtTime(0.374, t + dur - 0.05);
           gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
           osc.connect(gain); gain.connect(ac.destination);
           osc.start(t); osc.stop(t + dur + 0.05);
@@ -2051,7 +2051,7 @@ const _audio = (() => {
         const gain5 = ac.createGain();
         const t5 = now + 0.32;
         gain5.gain.setValueAtTime(0, t5);
-        gain5.gain.linearRampToValueAtTime(0.1, t5 + 0.02);
+        gain5.gain.linearRampToValueAtTime(0.17, t5 + 0.02);
         gain5.gain.exponentialRampToValueAtTime(0.001, t5 + 0.5);
         osc5.connect(gain5); gain5.connect(ac.destination);
         osc5.start(t5); osc5.stop(t5 + 0.55);
@@ -2069,7 +2069,7 @@ const _audio = (() => {
         osc1.frequency.setValueAtTime(120, now);
         osc1.frequency.exponentialRampToValueAtTime(25, now + 0.5);
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.25, now);
+        gain1.gain.setValueAtTime(0.50, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         osc1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.65);
@@ -2082,7 +2082,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 400;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.2, now);
+        ngain.gain.setValueAtTime(0.68, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur2);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur2 + 0.05);
@@ -2094,7 +2094,7 @@ const _audio = (() => {
         const filt3 = ac.createBiquadFilter();
         filt3.type = 'bandpass'; filt3.frequency.value = 500; filt3.Q.value = 0.8;
         const gain3 = ac.createGain();
-        gain3.gain.setValueAtTime(0.15, now);
+        gain3.gain.setValueAtTime(0.30, now);
         gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc3.connect(filt3); filt3.connect(gain3); gain3.connect(ac.destination);
         osc3.start(now); osc3.stop(now + 0.35);
@@ -2105,7 +2105,7 @@ const _audio = (() => {
         osc4.frequency.exponentialRampToValueAtTime(20, now + 0.8);
         const gain4 = ac.createGain();
         gain4.gain.setValueAtTime(0, now);
-        gain4.gain.linearRampToValueAtTime(0.15, now + 0.15);
+        gain4.gain.linearRampToValueAtTime(0.51, now + 0.15);
         gain4.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
         osc4.connect(gain4); gain4.connect(ac.destination);
         osc4.start(now + 0.1); osc4.stop(now + 0.85);
@@ -2136,7 +2136,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 600;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.3, now);
+        ngain.gain.setValueAtTime(0.51, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur2);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur2 + 0.02);
@@ -2191,7 +2191,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 600;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.15, now);
+        ngain.gain.setValueAtTime(0.255, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur3);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur3 + 0.02);
@@ -2202,7 +2202,7 @@ const _audio = (() => {
         osc3.frequency.exponentialRampToValueAtTime(80, now + 0.5);
         const gain3 = ac.createGain();
         gain3.gain.setValueAtTime(0, now);
-        gain3.gain.linearRampToValueAtTime(0.15, now + 0.07);
+        gain3.gain.linearRampToValueAtTime(0.255, now + 0.07);
         gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
         osc3.connect(gain3); gain3.connect(ac.destination);
         osc3.start(now + 0.05); osc3.stop(now + 0.55);
@@ -2224,7 +2224,7 @@ const _audio = (() => {
           const filt = ac.createBiquadFilter(); filt.type = 'bandpass';
           filt.frequency.value = 1500; filt.Q.value = 1.5;
           const gain = ac.createGain();
-          gain.gain.setValueAtTime(0.12, t);
+          gain.gain.setValueAtTime(0.306, t);
           gain.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.02);
           src.connect(filt); filt.connect(gain); gain.connect(ac.destination);
           src.start(t); src.stop(t + dur + 0.03);
@@ -2234,6 +2234,154 @@ const _audio = (() => {
   };
 })();
 
+
+// ============================================================
+// BGM ENGINE
+// ============================================================
+const _bgm = (() => {
+  let bac=null,cur=0,nodes=[],raf=null,sched=null;
+  let loopLen=0,loopStart=0;
+  const VOL=0.16;
+  const mf=n=>440*Math.pow(2,(n-69)/12);
+  function gac(){if(!bac)bac=new(window.AudioContext||window.webkitAudioContext)();if(bac.state==='suspended')bac.resume();return bac;}
+  function killLoop(){nodes.forEach(n=>{try{n.stop(0)}catch(e){}});nodes=[];if(sched)clearTimeout(sched);sched=null;}
+  function stop(){killLoop();cur=0;loopStart=0;}
+
+  const B1P=[{r:43,f:50,d:2},{r:40,f:47,d:2},{r:45,f:52,d:2},{r:48,f:55,d:2},{r:45,f:52,d:2},{r:43,f:50,d:2},{r:40,f:47,d:2},{r:45,f:52,d:2},{r:35,f:42,d:2},{r:40,f:47,d:4}];
+  const B1M=[[59,2],[64,2],[67,4],[66,4],[64,4],[71,4],[69,4],[67,4],[69,2],[72,2],[76,4],[74,4],[74,4],[72,4],[71,4],[69,4],[72,2],[69,2],[67,4],[64,4],[59,2],[62,2],[67,4],[66,4],[67,4],[71,4],[76,4],[74,4],[72,2],[0,2],[76,4],[74,4],[66,2],[69,2],[71,4],[74,4],[76,8],[71,4],[67,4],[64,8],[0,8]];
+  const B2P=[{r:38,f:45,d:2},{r:46,f:41,d:2},{r:36,f:43,d:2},{r:38,f:45,d:2},{r:38,f:45,d:2},{r:46,f:41,d:2},{r:36,f:43,d:2},{r:33,f:40,d:2},{r:38,f:45,d:2},{r:43,f:50,d:2},{r:46,f:41,d:2},{r:36,f:43,d:2},{r:41,f:48,d:2},{r:46,f:41,d:2},{r:33,f:40,d:2},{r:38,f:45,d:4}];
+  const B2M=[[62,3],[64,1],[65,2],[69,2],[70,3],[69,1],[67,2],[65,2],[64,2],[65,2],[67,3],[69,1],[62,4],[0,2],[74,2],[74,2],[72,2],[70,2],[69,2],[67,2],[65,2],[64,2],[65,2],[67,3],[69,1],[70,2],[72,2],[69,2],[72,2],[76,2],[81,2],[74,3],[72,1],[70,2],[69,2],[67,2],[70,2],[74,2],[72,2],[70,3],[69,1],[67,2],[65,2],[67,2],[69,2],[70,2],[72,2],[77,4],[76,2],[74,2],[72,2],[70,2],[69,2],[67,2],[64,1],[65,1],[64,1],[65,1],[69,2],[72,2],[74,8],[69,4],[65,4],[62,8],[0,8]];
+  const B3P=[{r:28,f:35,d:2},{r:36,f:43,d:2},{r:43,f:50,d:2},{r:38,f:45,d:2},{r:28,f:35,d:2},{r:36,f:43,d:2},{r:43,f:50,d:2},{r:38,f:45,d:2},{r:33,f:40,d:2},{r:28,f:35,d:2},{r:35,f:42,d:2},{r:28,f:35,d:2},{r:36,f:43,d:2},{r:43,f:50,d:2},{r:33,f:40,d:2},{r:35,f:42,d:2},{r:28,f:35,d:4}];
+  const B3M=[[64,1],[0,1],[64,1],[0,1],[67,2],[64,2],[0,2],[72,2],[71,1],[69,1],[67,2],[64,2],[0,2],[67,2],[69,2],[71,2],[67,2],[71,2],[74,2],[71,2],[67,2],[0,2],[66,2],[67,2],[69,2],[66,2],[62,2],[64,2],[66,4],[0,4],[64,1],[0,1],[67,1],[0,1],[71,2],[67,2],[0,1],[64,1],[66,1],[67,1],[69,2],[71,2],[72,2],[71,1],[68,1],[69,2],[67,2],[0,2],[76,2],[74,1],[72,1],[71,2],[71,2],[74,2],[79,4],[78,2],[76,2],[74,2],[71,2],[69,2],[66,2],[62,2],[62,2],[61,2],[62,2],[64,2],[66,2],[69,2],[72,2],[76,2],[72,2],[69,2],[0,2],[71,2],[72,2],[71,2],[67,2],[64,2],[67,2],[71,2],[0,2],[63,2],[64,2],[66,2],[69,2],[71,2],[75,2],[76,2],[75,2],[73,2],[71,2],[64,2],[67,2],[71,2],[76,2],[79,2],[0,2],[76,2],[74,2],[72,2],[76,2],[79,2],[76,2],[72,2],[71,2],[69,2],[67,2],[71,2],[74,2],[79,4],[78,2],[76,2],[74,2],[72,2],[69,2],[0,2],[72,2],[76,2],[81,2],[79,2],[76,2],[72,2],[71,1],[73,1],[74,1],[75,1],[76,4],[78,2],[76,2],[74,2],[71,2],[76,4],[71,4],[67,4],[64,4],[76,8],[0,8]];
+  const B4P=[{r:29,f:36,d:2},{r:37,f:44,d:2},{r:32,f:39,d:2},{r:39,f:46,d:2},{r:29,f:36,d:2},{r:37,f:44,d:2},{r:32,f:39,d:2},{r:39,f:46,d:2},{r:29,f:36,d:2},{r:37,f:44,d:2},{r:46,f:53,d:2},{r:39,f:46,d:2},{r:29,f:36,d:2},{r:37,f:44,d:2},{r:39,f:46,d:2},{r:29,f:36,d:4}];
+  const B4A=[[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[44,48,51,48,44,48,51,55],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[44,48,51,48,44,48,51,55],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[46,49,53,49,46,49,53,56],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63]];
+  const B4M=[[72,3],[0,1],[77,2],[75,2],[73,2],[72,2],[70,2],[68,2],[68,2],[0,2],[73,3],[72,1],[70,2],[68,2],[67,2],[68,2],[72,2],[75,2],[77,4],[75,4],[70,2],[72,2],[73,2],[75,2],[77,3],[0,1],[75,2],[73,2],[72,2],[70,2],[68,3],[0,1],[77,2],[75,2],[73,2],[72,2],[70,2],[68,2],[67,2],[68,2],[77,2],[75,2],[73,4],[72,4],[70,2],[68,2],[67,2],[65,2],[68,4],[72,2],[75,2],[77,4],[79,2],[0,2],[77,2],[75,2],[73,2],[72,2],[70,2],[72,2],[73,2],[75,2],[77,2],[75,2],[73,2],[72,2],[73,2],[72,2],[70,2],[68,2],[67,2],[68,2],[70,2],[72,2],[70,3],[0,1],[75,2],[73,2],[72,2],[70,2],[68,2],[67,2],[68,2],[0,2],[70,2],[75,2],[80,2],[79,2],[77,2],[75,2],[70,2],[68,2],[67,2],[65,2],[67,1],[68,1],[70,1],[72,1],[73,2],[75,2],[77,2],[75,2],[73,2],[72,2],[70,2],[68,2],[67,2],[65,2],[68,2],[72,2],[77,4],[75,4],[73,2],[72,2],[70,2],[68,2],[77,8],[72,4],[68,4],[65,8],[0,8]];
+
+  function play(num){
+    if(cur===num)return;
+    killLoop();
+    cur=num;
+    loopStart=0;
+    _loop();
+  }
+
+  function _loop(){
+    if(!cur)return;
+    const a=gac();
+    const cfgs={
+      1:{prog:B1P,mel:B1M,bpm:138,arp:false},
+      2:{prog:B2P,mel:B2M,bpm:158,arp:false},
+      3:{prog:B3P,mel:B3M,bpm:168,arp:false},
+      4:{prog:B4P,mel:B4M,bpm:128,arp:true,ap:B4A},
+    };
+    const {prog,mel,bpm,arp,ap}=cfgs[cur];
+    const b=60/bpm,s16=b/4;
+    loopLen=prog.reduce((s,c)=>s+c.d*b,0);
+    // 初回はバッファ付き開始、2回目以降は前ループの終端から継続（ギャップなし）
+    const now = (loopStart > 0 && a.currentTime < loopStart + loopLen)
+      ? loopStart + loopLen
+      : a.currentTime + 0.05;
+    loopStart=now;
+    const master=a.createGain();master.gain.value=VOL;master.connect(a.destination);
+    let t=now;
+    const sOff=cur===4?b*0.5:0;
+    prog.forEach(({r,f,d},ci)=>{
+      const dur=d*b;
+      if(arp&&ap){
+        const pat=ap[ci]||ap[0];
+        pat.forEach((note,ni)=>{
+          const nt=t+ni*s16,nl=s16*0.82;
+          const o=a.createOscillator();o.type='triangle';o.frequency.value=mf(note);
+          const g=a.createGain();g.gain.setValueAtTime(0,nt);g.gain.linearRampToValueAtTime(0.09,nt+0.012);g.gain.setValueAtTime(0.07,nt+nl-0.02);g.gain.linearRampToValueAtTime(0,nt+nl);
+          o.connect(g);g.connect(master);o.start(nt);o.stop(nt+nl+0.01);nodes.push(o);
+        });
+      } else {
+        const ts=Math.max(t-sOff,now);
+        [r+12,f+12,r+24].forEach((note,ri)=>{
+          if(!note||note<10)return;
+          const vol=[0.12,0.10,0.05][ri];
+          const o=a.createOscillator();o.type='square';o.frequency.value=mf(note);
+          const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=ri===2?500:760;lp.Q.value=0.5;
+          const g=a.createGain();g.gain.setValueAtTime(0,ts);g.gain.linearRampToValueAtTime(vol,ts+0.013);g.gain.setValueAtTime(vol*0.88,t+dur-0.06);g.gain.linearRampToValueAtTime(0,t+dur-0.01);
+          o.connect(lp);lp.connect(g);g.connect(master);o.start(ts);o.stop(t+dur);nodes.push(o);
+        });
+      }
+      const bts=Math.max(t-sOff,now);
+      const bo=a.createOscillator();bo.type='triangle';bo.frequency.value=mf(r);
+      const bg=a.createGain();bg.gain.setValueAtTime(0,bts);bg.gain.linearRampToValueAtTime(0.28,bts+0.018);bg.gain.setValueAtTime(0.22,t+dur-0.07);bg.gain.linearRampToValueAtTime(0,t+dur-0.01);
+      bo.connect(bg);bg.connect(master);bo.start(bts);bo.stop(t+dur);nodes.push(bo);
+      if(!arp){const b2t=t+dur*0.5,b2l=dur*0.44;const bo2=a.createOscillator();bo2.type='triangle';bo2.frequency.value=mf(r);const bg2=a.createGain();bg2.gain.setValueAtTime(0,b2t);bg2.gain.linearRampToValueAtTime(0.18,b2t+0.014);bg2.gain.setValueAtTime(0.14,b2t+b2l-0.04);bg2.gain.linearRampToValueAtTime(0,b2t+b2l-0.01);bo2.connect(bg2);bg2.connect(master);bo2.start(b2t);bo2.stop(b2t+b2l);nodes.push(bo2);}
+      t+=dur;
+    });
+    let mt=now;
+    mel.forEach(([note,sixths])=>{
+      const dur=sixths*s16;
+      if(note>0){
+        const unis=(cur===2||cur===3)?[[0,0.10],[12,0.04]]:[[0,0.105]];
+        unis.forEach(([sub,vol])=>{
+          const o=a.createOscillator();o.type='square';o.frequency.value=mf(note-sub);
+          const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=sub===0?2600:1000;
+          const g=a.createGain();g.gain.setValueAtTime(0,mt);g.gain.linearRampToValueAtTime(vol,mt+0.011);g.gain.setValueAtTime(vol*0.85,mt+dur-0.032);g.gain.linearRampToValueAtTime(0,mt+dur-0.008);
+          o.connect(lp);lp.connect(g);g.connect(master);o.start(mt);o.stop(mt+dur);nodes.push(o);
+        });
+      }
+      mt+=dur;
+    });
+    const s8=b/2;
+    if(cur===4){
+      const tS=Math.round(loopLen/s16);
+      for(let i=0;i<tS;i++){const bt=now+i*s16;
+        if(i%16===0||i%16===2||i%16===8||i%16===11){const o=a.createOscillator();o.type='sine';const acc=i%16===0||i%16===8;o.frequency.setValueAtTime(acc?190:160,bt);o.frequency.exponentialRampToValueAtTime(40,bt+0.09);const g=a.createGain();g.gain.setValueAtTime(acc?0.58:0.44,bt);g.gain.exponentialRampToValueAtTime(0.001,bt+0.11);o.connect(g);g.connect(master);o.start(bt);o.stop(bt+0.12);nodes.push(o);}
+        if(i%16===4||i%16===12){const len=Math.floor(a.sampleRate*0.13);const buf=a.createBuffer(1,len,a.sampleRate);const dd=buf.getChannelData(0);for(let j=0;j<len;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/len,0.55);const s=a.createBufferSource();s.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2100;bp.Q.value=0.8;const g=a.createGain();g.gain.value=0.38;s.connect(bp);bp.connect(g);g.connect(master);s.start(bt);nodes.push(s);}
+        if(i%2===0){const isO=i%8===6,len=Math.floor(a.sampleRate*(isO?0.08:0.04));const buf=a.createBuffer(1,len,a.sampleRate);const dd=buf.getChannelData(0);for(let j=0;j<len;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/len,isO?0.3:0.48);const s=a.createBufferSource();s.buffer=buf;const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=8000;const g=a.createGain();g.gain.value=isO?0.14:0.10;s.connect(hp);hp.connect(g);g.connect(master);s.start(bt);nodes.push(s);}
+      }
+    } else {
+      const tE=Math.round(loopLen/s8);
+      for(let i=0;i<tE;i++){const bt=now+i*s8;
+        const isK=cur===2?(i%8===0||i%8===4||i%8===5):(i%4===0||i%4===2);
+        if(isK){const o=a.createOscillator();o.type='sine';const acc=i%4===0;o.frequency.setValueAtTime(acc?195:165,bt);o.frequency.exponentialRampToValueAtTime(40,bt+0.09);const g=a.createGain();g.gain.setValueAtTime(acc?0.60:0.48,bt);g.gain.exponentialRampToValueAtTime(0.001,bt+0.11);o.connect(g);g.connect(master);o.start(bt);o.stop(bt+0.12);nodes.push(o);}
+        const isSn=cur===2?(i%8===2||i%8===6):(i%4===1||i%4===3);
+        if(isSn){const len=Math.floor(a.sampleRate*0.13);const buf=a.createBuffer(1,len,a.sampleRate);const dd=buf.getChannelData(0);for(let j=0;j<len;j++)dd[j]=(Math.random()*2-1)*Math.pow(1-j/len,0.53);const s=a.createBufferSource();s.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2200;bp.Q.value=0.75;const g=a.createGain();g.gain.value=cur===2?0.44:0.38;s.connect(bp);bp.connect(g);g.connect(master);s.start(bt);nodes.push(s);if(cur===2||cur===3){const st=a.createOscillator();st.type='square';st.frequency.value=200;const sg=a.createGain();sg.gain.setValueAtTime(0.07,bt);sg.gain.exponentialRampToValueAtTime(0.001,bt+0.055);const slp=a.createBiquadFilter();slp.type='lowpass';slp.frequency.value=350;st.connect(slp);slp.connect(sg);sg.connect(master);st.start(bt);st.stop(bt+0.06);nodes.push(st);}}
+        const down=i%2===0,hhlen=Math.floor(a.sampleRate*(down?0.045:0.028));const hhbuf=a.createBuffer(1,hhlen,a.sampleRate);const hhd=hhbuf.getChannelData(0);for(let j=0;j<hhlen;j++)hhd[j]=(Math.random()*2-1)*Math.pow(1-j/hhlen,0.46);const hhs=a.createBufferSource();hhs.buffer=hhbuf;const hhp=a.createBiquadFilter();hhp.type='highpass';hhp.frequency.value=8800;const hhg=a.createGain();hhg.gain.value=down?0.12:0.07;hhs.connect(hhp);hhp.connect(hhg);hhg.connect(master);hhs.start(bt);nodes.push(hhs);
+      }
+    }
+    // 次のループを現在のループ終端の少し前にスケジュール（先読み）
+    const nextLoopAt = now + loopLen;
+    const fireAt = (nextLoopAt - a.currentTime) * 1000 - 80;
+    sched=setTimeout(()=>{
+      if(!cur)return;
+      // 古いノードは次ループ開始後に自然に終わるので即stopはしない
+      // （短いノードは既に終了、長いノードはloopLen以内に終わるよう設計）
+      const old=nodes.slice();
+      nodes=[];
+      _loop();
+      // 古いノードを次ループ開始から少し後に解放
+      setTimeout(()=>old.forEach(n=>{try{n.stop(0)}catch(e){}}), 200);
+    }, fireAt > 0 ? fireAt : 0);
+  }
+  return {play,stop};
+})();
+
+// BGM状態チェック：撃墜・乗り換え後に適切なBGMへ戻す
+function _checkBGMAfterUnitLost() {
+  // マップ上にイベント出現ユニット（noCards=true, e01-e04）が残っているか
+  const hasThirdForce = gs.players && gs.players.some(p =>
+    p.noCards && !p.destroyed && p.unit &&
+    ['e01','e02','e03','e04'].includes(p.unit.templateId)
+  );
+  // マップ上にゼーコアクス（e05）が残っているか
+  const hasZeconova = gs.players && gs.players.some(p =>
+    !p.destroyed && p.unit && p.unit.templateId === 'e05'
+  );
+
+  if (hasZeconova) {
+    _bgm.play(4); // ゼーコアクスがいる → BGM4
+  } else if (hasThirdForce) {
+    _bgm.play(3); // イベント出現ユニットがいる → BGM3
+  } else {
+    _bgm.play(2); // どちらもいない → BGM2（通常戦闘）
+  }
+}
 
 const COLS = 18, ROWS = 9;
 const HEX_SIZE = 36;
@@ -2549,10 +2697,12 @@ function ssStartGame() {
 
   if (isMobile()) {
     document.getElementById('ms-start-screen').classList.remove('active');
+    _bgm.play(2);
     startGame();
     msShowGame();
   } else {
     document.getElementById('start-screen').classList.add('hidden');
+    _bgm.play(2);
     startGame();
   }
 }
@@ -2644,6 +2794,8 @@ function msReturnToTitle() {
   if (canvasContainer.parentElement !== mapArea) {
     mapArea.appendChild(canvasContainer);
   }
+  const msTitle = document.getElementById('ms-start-screen');
+  if (msTitle) msTitle.scrollTop = 0;
   msInit();
 }
 
@@ -2655,14 +2807,6 @@ function msSwitchTab(tab) {
   const tabEl = document.getElementById('ms-tab-' + tab);
   if (tabEl) tabEl.classList.add('active');
   msRenderTab(tab);
-  const content = document.getElementById('ms-tab-content');
-  if (content) {
-    if (tab === 'log') {
-      content.scrollTop = content.scrollHeight;
-    } else {
-      content.scrollTop = 0;
-    }
-  }
 }
 
 function msRenderTab(tab) {
@@ -2736,7 +2880,7 @@ function msRenderUnits(el) {
     const info = document.createElement('div');
     info.className = 'ms-unit-info';
     const name = hasUnit ? p.unit.name : '未出撃';
-    const stars = hasUnit ? (typeof p.unit.level === 'number' ? '★'.repeat(p.unit.level) : '☆') : '';
+    const stars = hasUnit ? (typeof p.unit.level === 'number' ? '★'.repeat(p.unit.level) : '☆☆☆') : '';
     const hp = hasUnit ? p.unit.hp : '';
     const maxHp = hasUnit ? p.unit.maxHp : '';
     const handCount = p.noCards ? '' : p.hand.length;
@@ -2952,16 +3096,16 @@ function msAddLog(text, type) {
   // ログタブが開いていれば即時更新
   if (_msCurrentTab === 'log') {
     msRenderTab('log');
-    const content = document.getElementById('ms-tab-content');
-    if (content) content.scrollTop = content.scrollHeight;
   }
 }
 
 function returnToTitle() {
+  _bgm.play(1);
   if (isMobile()) {
     msReturnToTitle();
   } else {
     document.getElementById('start-screen').classList.remove('hidden');
+    document.getElementById('start-screen').scrollTop = 0;
     setButtons([]);
     gs.phase = 'title';
     gs.grid = [];
@@ -3127,8 +3271,9 @@ function _showCardListZoom(src, onClose) {
 
 
 function setGameOverButtons() {
+  _bgm.stop();
   setButtons([
-    { text:'もう一度対戦する', cls:'btn-purple', action:() => { _audio.rematch(); setTimeout(() => startGame(true), 100); } },
+    { text:'もう一度対戦する', cls:'btn-purple', action:() => { _audio.rematch(); setTimeout(() => { _bgm.play(2); startGame(true); }, 100); } },
     { text:'タイトル画面に戻る', cls:'btn-purple', action:() => { _audio.titleBack(); setTimeout(() => returnToTitle(), 500); } }
   ]);
 }
@@ -4639,6 +4784,7 @@ function startGame(rematch) {
   gs._postMoveOnBase = false;
   gs._postDmgAttacker = null;
   gs._postDmgDefender = null;
+  gs._cpuUsedCounter = false;
   gs._evacCallback = null;
   gs.currentEventId = null; gs.currentEventText = null;
   gs._eventMoveCallback = null;
@@ -6022,6 +6168,7 @@ function eventSpawnThirdForce(eventId, player, callback) {
   const spawnMsg = spawnMessages[preset.unitId];
   addLog(`マップ上に ${UNIT_DB[preset.unitId].name} が出現した。`, 'log-event');
   _audio.appear();
+  _checkBGMAfterUnitLost();
   addDamagePopup(spawnHex.col, spawnHex.row, spawnMsg, '#ff9933');
   updateAll();
   if (callback) callback();
@@ -6042,6 +6189,7 @@ function eventZeconova(player, callback) {
   player.unit = createUnit('e05', col, row, null);
   addLog(`${player.name} は ${oldZecoName} から ゼーコアクス に乗り換えた。`, 'log-event');
   _audio.appear();
+  _bgm.play(4);
   addDamagePopup(col, row, 'ゼコノヴァ発生', '#ff9933');
   updateAll();
 
@@ -7860,6 +8008,7 @@ function applyEmergencyEvac(player, cardId, diceValue, returnCallback) {
           removeCardFromHand(player, cid);
           addLog(`${player.name} は ${oldName} から ${player.unit.name} に乗り換えた。`, 'log-skill');
           addSpawnPopup(col, row, false);
+          _checkBGMAfterUnitLost();
           next();
         }
       });
@@ -8299,6 +8448,7 @@ function executeSwap(player, cardId) {
   addLog(`${player.name} は ${oldName} から ${player.unit.name} に乗り換えた。`, 'system');
   addSpawnPopup(col, row, false);
   updateAll();
+  _checkBGMAfterUnitLost();
   // Mission check: swap (mission08)
   const _swapOnBase = player.unit && gs.grid[player.unit.col][player.unit.row] === CELL_TYPES.BASE;
   checkMissions('swap', { player, onBase: _swapOnBase }, () => {
@@ -8345,6 +8495,10 @@ function applyDamage(target, dmg, attacker) {
       addExplosionEffect(_col, _row);
       target.unit = null;
       updateAll();
+      // ゲーム中ならBGM状態をチェック
+      if (gs.phase !== 'gameover' && gs.phase !== 'title') {
+        _checkBGMAfterUnitLost();
+      }
     }, 600);
     if (gs.scores.a >= gameConfig.victoryPoints || gs.scores.b >= gameConfig.victoryPoints) {
       gs.phase = 'gameover';
