@@ -846,6 +846,14 @@
   .ss-vp-val { font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; color: #ffd700; min-width: 60px; text-align: center; }
   .ss-vp-unit { font-size: 14px; color: #8899bb; font-weight: 700; }
   .ss-turn-note { text-align: center; font-size: 11px; color: #556; margin-top: 6px; }
+  /* BGM設定 */
+  .ss-bgm-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 8px; }
+  .ss-bgm-btn { padding: 10px 28px; border: 2px solid #2a3a52; border-radius: 8px; background: rgba(20,28,45,0.8); color: #aab; font-size: 16px; font-weight: 900; cursor: pointer; font-family: 'Orbitron', 'Noto Sans JP', sans-serif; transition: all 0.2s; }
+  .ss-bgm-btn:hover { border-color: #4a9eff; color: #4a9eff; }
+  .ss-bgm-btn.active { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+  .ms-bgm-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .ms-bgm-btn { flex: 1; padding: 7px 4px; border: 1px solid #2a3a55; border-radius: 5px; background: #1a2235; color: #8a9ab0; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'Noto Sans JP', sans-serif; }
+  .ms-bgm-btn.active { background: #1a3050; color: #5a9cf5; border-color: #2a5a9a; }
   .ss-start-area { margin-top: 28px; text-align: center; }
   .ss-start-btn {
     display: inline-block; padding: 16px 80px; border: none; border-radius: 10px;
@@ -1234,6 +1242,13 @@
         </div>
         <div class="ms-turn-note" id="ms-turn-note">ターン上限: 30ターン</div>
       </div>
+      <div class="ms-section">
+        <div class="ms-label">BGM設定</div>
+        <div class="ms-bgm-row">
+          <button class="ms-bgm-btn active" id="ms-bgm-on"  onclick="ssBGMSelect(true)">BGMあり</button>
+          <button class="ms-bgm-btn"        id="ms-bgm-off" onclick="ssBGMSelect(false)">BGMなし</button>
+        </div>
+      </div>
     </div>
     <div id="ms-footer">
       <button class="ms-footer-btn" onclick="openInfoModal('rule-modal')">ルール説明</button>
@@ -1356,6 +1371,13 @@
       </div>
       <div class="ss-turn-note" id="ss-turn-note">ターン上限: 30ターン（このときポイントの多い軍が勝利）</div>
     </div>
+    <div class="ss-section">
+      <div class="ss-label">BGM設定</div>
+      <div class="ss-bgm-row">
+        <button class="ss-bgm-btn active" id="ss-bgm-on"  onclick="ssBGMSelect(true)">BGMあり</button>
+        <button class="ss-bgm-btn"        id="ss-bgm-off" onclick="ssBGMSelect(false)">BGMなし</button>
+      </div>
+    </div>
     <div class="ss-start-area">
       <button class="ss-start-btn" onclick="ssStartGame()">ゲーム開始</button>
     </div>
@@ -1377,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.7</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.9</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2638,6 +2660,21 @@ const gameConfig = {
 const ssStats = { tech: 1, react: 1, spirit: 1 };
 const SS_STAT_MIN = 1, SS_STAT_MAX = 6, SS_TOTAL = 12;
 let ssMatchSize = 2, ssVP = 10, ssTeam = 'a';
+let ssBGMEnabled = true; // BGM設定（true=あり、false=なし）
+
+function ssBGMSelect(enabled) {
+  ssBGMEnabled = enabled;
+  // PC版ボタン
+  const onPC  = document.getElementById('ss-bgm-on');
+  const offPC = document.getElementById('ss-bgm-off');
+  if (onPC)  onPC.classList.toggle('active', enabled);
+  if (offPC) offPC.classList.toggle('active', !enabled);
+  // モバイル版ボタン
+  const onMS  = document.getElementById('ms-bgm-on');
+  const offMS = document.getElementById('ms-bgm-off');
+  if (onMS)  onMS.classList.toggle('active', enabled);
+  if (offMS) offMS.classList.toggle('active', !enabled);
+}
 
 function ssSelectTeam(team) {
   ssTeam = team;
@@ -2697,12 +2734,12 @@ function ssStartGame() {
 
   if (isMobile()) {
     document.getElementById('ms-start-screen').classList.remove('active');
-    _bgm.play(2);
+    if (ssBGMEnabled) _bgm.play(2);
     startGame();
     msShowGame();
   } else {
     document.getElementById('start-screen').classList.add('hidden');
-    _bgm.play(2);
+    if (ssBGMEnabled) _bgm.play(2);
     startGame();
   }
 }
@@ -3100,7 +3137,8 @@ function msAddLog(text, type) {
 }
 
 function returnToTitle() {
-  _bgm.play(1);
+  if (ssBGMEnabled) _bgm.play(1);
+  else _bgm.stop();
   if (isMobile()) {
     msReturnToTitle();
   } else {
@@ -3273,7 +3311,7 @@ function _showCardListZoom(src, onClose) {
 function setGameOverButtons() {
   _bgm.stop();
   setButtons([
-    { text:'もう一度対戦する', cls:'btn-purple', action:() => { _audio.rematch(); setTimeout(() => { _bgm.play(2); startGame(true); }, 100); } },
+    { text:'もう一度対戦する', cls:'btn-purple', action:() => { _audio.rematch(); setTimeout(() => { if (ssBGMEnabled) _bgm.play(2); startGame(true); }, 100); } },
     { text:'タイトル画面に戻る', cls:'btn-purple', action:() => { _audio.titleBack(); setTimeout(() => returnToTitle(), 500); } }
   ]);
 }
@@ -6168,7 +6206,7 @@ function eventSpawnThirdForce(eventId, player, callback) {
   const spawnMsg = spawnMessages[preset.unitId];
   addLog(`マップ上に ${UNIT_DB[preset.unitId].name} が出現した。`, 'log-event');
   _audio.appear();
-  _checkBGMAfterUnitLost();
+  if (ssBGMEnabled) _checkBGMAfterUnitLost();
   addDamagePopup(spawnHex.col, spawnHex.row, spawnMsg, '#ff9933');
   updateAll();
   if (callback) callback();
@@ -6189,7 +6227,7 @@ function eventZeconova(player, callback) {
   player.unit = createUnit('e05', col, row, null);
   addLog(`${player.name} は ${oldZecoName} から ゼーコアクス に乗り換えた。`, 'log-event');
   _audio.appear();
-  _bgm.play(4);
+  if (ssBGMEnabled) _bgm.play(4);
   addDamagePopup(col, row, 'ゼコノヴァ発生', '#ff9933');
   updateAll();
 
@@ -8008,7 +8046,7 @@ function applyEmergencyEvac(player, cardId, diceValue, returnCallback) {
           removeCardFromHand(player, cid);
           addLog(`${player.name} は ${oldName} から ${player.unit.name} に乗り換えた。`, 'log-skill');
           addSpawnPopup(col, row, false);
-          _checkBGMAfterUnitLost();
+          if (ssBGMEnabled) _checkBGMAfterUnitLost();
           next();
         }
       });
@@ -8448,7 +8486,7 @@ function executeSwap(player, cardId) {
   addLog(`${player.name} は ${oldName} から ${player.unit.name} に乗り換えた。`, 'system');
   addSpawnPopup(col, row, false);
   updateAll();
-  _checkBGMAfterUnitLost();
+  if (ssBGMEnabled) _checkBGMAfterUnitLost();
   // Mission check: swap (mission08)
   const _swapOnBase = player.unit && gs.grid[player.unit.col][player.unit.row] === CELL_TYPES.BASE;
   checkMissions('swap', { player, onBase: _swapOnBase }, () => {
@@ -8496,7 +8534,7 @@ function applyDamage(target, dmg, attacker) {
       target.unit = null;
       updateAll();
       // ゲーム中ならBGM状態をチェック
-      if (gs.phase !== 'gameover' && gs.phase !== 'title') {
+      if (gs.phase !== 'gameover' && gs.phase !== 'title' && ssBGMEnabled) {
         _checkBGMAfterUnitLost();
       }
     }, 600);
