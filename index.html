@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.14</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.16</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2383,6 +2383,18 @@ const _bgm = (() => {
   }
   return {play,stop};
 })();
+
+// ゼーコアクス消滅チェック：撃墜・乗り換え後にevent35を終了済みにする
+function _checkZeconovaGone() {
+  const hasZeconova = gs.players && gs.players.some(p =>
+    !p.destroyed && p.unit && p.unit.templateId === 'e05'
+  );
+  if (!hasZeconova && gs.currentEventId === 'event35') {
+    gs.doneInstantEvents.add('event35');
+    gs.currentEventId = null;
+    updateEventPanel();
+  }
+}
 
 // BGM状態チェック：撃墜・乗り換え後に適切なBGMへ戻す
 function _checkBGMAfterUnitLost() {
@@ -5236,7 +5248,7 @@ function triggerEvent(player, callback) {
       const _prevIdSkip = gs.currentEventId;
       if (_prevIdSkip && EVENT_DB[_prevIdSkip]
           && EVENT_DB[_prevIdSkip].type === 'instant'
-          && !['event31','event32','event33','event34'].includes(_prevIdSkip)) {
+          && !['event31','event32','event33','event34','event35'].includes(_prevIdSkip)) {
         gs.doneInstantEvents.add(_prevIdSkip);
       }
       if (gs.activeEvent) clearContinuousEvent();
@@ -5244,6 +5256,8 @@ function triggerEvent(player, callback) {
       updateEventPanel();
       showEventOverlay(eventId, () => {
         addLog('対象がいなかった。（イベント終了）', 'log-event');
+        gs.doneInstantEvents.add(eventId);
+        gs.currentEventId = null;
         updateEventPanel();
         checkMissions('event', { player }, () => {
           if (gs.phase === 'gameover') return;
@@ -5261,11 +5275,11 @@ function triggerEvent(player, callback) {
   addLog(`イベント「${ev.name}」が発生した。`, 'log-event');
 
   // 前の instant イベントを終了済みに（新イベント発生タイミング）
-  // event31-34 はユニット撃墜まで終了しないので除外
+  // event31-34はユニット撃墜まで、event35はゼーコアクス消滅まで終了しないので除外
   const _prevId = gs.currentEventId;
   if (_prevId && EVENT_DB[_prevId]
       && EVENT_DB[_prevId].type === 'instant'
-      && !['event31','event32','event33','event34'].includes(_prevId)) {
+      && !['event31','event32','event33','event34','event35'].includes(_prevId)) {
     gs.doneInstantEvents.add(_prevId);
   }
 
@@ -5289,6 +5303,12 @@ function triggerEvent(player, callback) {
     }
     // Execute the event effect
     executeEvent(eventId, player, () => {
+      // 即時イベント（event31-35以外）は効果完了時点で終了済みに
+      const _tf = new Set(['event31','event32','event33','event34','event35']);
+      if (ev.type === 'instant' && !_tf.has(eventId)) {
+        gs.doneInstantEvents.add(eventId);
+        if (gs.currentEventId === eventId) gs.currentEventId = null;
+      }
       // event panel update after executeEvent so activeThirdForceEvents is registered
       updateEventPanel();
       // Check hand limit for all players after event
@@ -6341,8 +6361,8 @@ function processSetupQueue() {
 function startTurn() {
   if (gs.phase === 'gameover') return;
   // 前のターンの instant イベントを終了済みに（次プレイヤーの番になったタイミング）
-  // event31-34 はユニット撃墜まで終了しないので除外
-  const _THIRD_FORCE_EVENTS = new Set(['event31','event32','event33','event34']);
+  // event31-34はユニット撃墜まで、event35はゼーコアクス消滅まで終了しないので除外
+  const _THIRD_FORCE_EVENTS = new Set(['event31','event32','event33','event34','event35']);
   if (gs.currentEventId && EVENT_DB[gs.currentEventId]
       && EVENT_DB[gs.currentEventId].type === 'instant'
       && !_THIRD_FORCE_EVENTS.has(gs.currentEventId)) {
@@ -8062,6 +8082,7 @@ function applyEmergencyEvac(player, cardId, diceValue, returnCallback) {
           removeCardFromHand(player, cid);
           addLog(`${player.name} は ${oldName} から ${player.unit.name} に乗り換えた。`, 'log-skill');
           addSpawnPopup(col, row, false);
+          _checkZeconovaGone();
           if (ssBGMEnabled) _checkBGMAfterUnitLost();
           next();
         }
@@ -8502,6 +8523,7 @@ function executeSwap(player, cardId) {
   addLog(`${player.name} は ${oldName} から ${player.unit.name} に乗り換えた。`, 'system');
   addSpawnPopup(col, row, false);
   updateAll();
+  _checkZeconovaGone();
   if (ssBGMEnabled) _checkBGMAfterUnitLost();
   // Mission check: swap (mission08)
   const _swapOnBase = player.unit && gs.grid[player.unit.col][player.unit.row] === CELL_TYPES.BASE;
@@ -8554,6 +8576,7 @@ function applyDamage(target, dmg, attacker) {
       addExplosionEffect(_col, _row);
       target.unit = null;
       updateAll();
+      _checkZeconovaGone();
       // ゲーム中ならBGM状態をチェック
       if (gs.phase !== 'gameover' && gs.phase !== 'title' && ssBGMEnabled) {
         _checkBGMAfterUnitLost();
