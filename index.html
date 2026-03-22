@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.9</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.10</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2386,6 +2386,7 @@ const _bgm = (() => {
 
 // BGM状態チェック：撃墜・乗り換え後に適切なBGMへ戻す
 function _checkBGMAfterUnitLost() {
+  if (!ssBGMEnabled) return;
   // マップ上にイベント出現ユニット（noCards=true, e01-e04）が残っているか
   const hasThirdForce = gs.players && gs.players.some(p =>
     p.noCards && !p.destroyed && p.unit &&
