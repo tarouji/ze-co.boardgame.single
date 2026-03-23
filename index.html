@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.19</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.20</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2389,9 +2389,12 @@ function _checkZeconovaGone() {
   const hasZeconova = gs.players && gs.players.some(p =>
     !p.destroyed && p.unit && p.unit.templateId === 'e05'
   );
-  if (!hasZeconova && gs.currentEventId === 'event35') {
+  // event35が発生済み（usedOneTimeEvents）かつまだ終了済みでない（doneInstantEvents未追加）
+  const event35Active = gs.usedOneTimeEvents && gs.usedOneTimeEvents.includes('event35')
+                     && gs.doneInstantEvents && !gs.doneInstantEvents.has('event35');
+  if (!hasZeconova && event35Active) {
     gs.doneInstantEvents.add('event35');
-    gs.currentEventId = null;
+    if (gs.currentEventId === 'event35') gs.currentEventId = null;
     updateEventPanel();
   }
 }
