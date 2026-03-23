@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.18</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.19</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -5795,7 +5795,7 @@ function showEventMoveOtherSelect(player, targets, callback) {
 
 function eventMoveselfInternal(target, controller, callback, backFn) {
   const valid = getValidEventHexes();
-  if (valid.length === 0) { addLog(`${player.name} は移動できるマスがなかった。（イベント終了）`, 'log-event'); if (callback) callback(); return; }
+  if (valid.length === 0) { addLog(`${target.name} は移動できるマスがなかった。（イベント終了）`, 'log-event'); if (callback) callback(); return; }
   if (controller.isHuman) {
     gs.phase = 'event_move'; gs.currentEventText = '【イベント】 移動するマスを選択してください';
     gs.spawnChoices = valid;
