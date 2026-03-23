@@ -1399,7 +1399,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.17</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.18</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -3074,7 +3074,7 @@ function msRenderEvents(el) {
   el.appendChild(hdr);
   const row = document.createElement('div');
   row.className = 'ms-card-row';
-  const recent = gs.eventHistory.slice(-5).reverse();
+  const recent = gs.eventHistory.slice().reverse(); // 全件・新しい順
   const _THIRD_FORCE = new Set(['event31','event32','event33','event34']);
   for (const eid of recent) {
     const ev = EVENT_DB[eid];
