@@ -1404,7 +1404,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.24</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.25</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -3982,10 +3982,12 @@ function forceDrawCard(player) {
   // If deck is empty, shuffle discard pile into deck
   if (gs.deck.length === 0) {
     if (gs.discard.length === 0) return null; // no cards anywhere
-    // card13退避中はデッキに含めない
-    gs.deck = gs._card13Exiled
+    // card13退避中はデッキに含めない（card13しかない場合はドロー不可）
+    const deckCards = gs._card13Exiled
       ? gs.discard.filter(id => id !== 'card13')
       : [...gs.discard];
+    if (deckCards.length === 0) return null; // card13以外がない
+    gs.deck = deckCards;
     gs.discard = gs._card13Exiled
       ? gs.discard.filter(id => id === 'card13') // card13だけ捨て札に残す
       : [];
@@ -7743,10 +7745,12 @@ function applyDraw(player, cardId, rawDice, cappedDice, returnCallback) {
     // Bypass hand limit for draw skill — push directly
     if (gs.deck.length === 0) {
       if (gs.discard.length === 0) break;
-      // card13退避中はデッキに含めない
-      gs.deck = gs._card13Exiled
+      // card13退避中はデッキに含めない（card13しかない場合はドロー不可）
+      const deckCards = gs._card13Exiled
         ? gs.discard.filter(id => id !== 'card13')
         : [...gs.discard];
+      if (deckCards.length === 0) break; // card13以外がない
+      gs.deck = deckCards;
       gs.discard = gs._card13Exiled
         ? gs.discard.filter(id => id === 'card13')
         : [];
