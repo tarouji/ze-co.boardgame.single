@@ -1404,7 +1404,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.25</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.26</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2696,6 +2696,13 @@ let ssBGMEnabled = true; // BGM設定（true=あり、false=なし）
 
 function ssBGMSelect(enabled) {
   ssBGMEnabled = enabled;
+  if (!enabled) {
+    // BGMなしに切り替えたとき、流れているBGMを即座に停止
+    _bgm.stop();
+  } else if (gs.phase === 'title') {
+    // BGMありに切り替えたとき、タイトル画面ならBGM1を再生
+    _bgm.play(1);
+  }
   // PC版ボタン
   const onPC  = document.getElementById('ss-bgm-on');
   const offPC = document.getElementById('ss-bgm-off');
