@@ -1404,7 +1404,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.21</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.24</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2283,6 +2283,9 @@ const _bgm = (() => {
   const B4P=[{r:29,f:36,d:2},{r:37,f:44,d:2},{r:32,f:39,d:2},{r:39,f:46,d:2},{r:29,f:36,d:2},{r:37,f:44,d:2},{r:32,f:39,d:2},{r:39,f:46,d:2},{r:29,f:36,d:2},{r:37,f:44,d:2},{r:46,f:53,d:2},{r:39,f:46,d:2},{r:29,f:36,d:2},{r:37,f:44,d:2},{r:39,f:46,d:2},{r:29,f:36,d:4}];
   const B4A=[[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[44,48,51,48,44,48,51,55],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[44,48,51,48,44,48,51,55],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[46,49,53,49,46,49,53,56],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63],[49,53,56,53,49,53,56,58],[51,55,58,55,51,55,58,60],[53,56,60,56,53,56,60,63]];
   const B4M=[[72,3],[0,1],[77,2],[75,2],[73,2],[72,2],[70,2],[68,2],[68,2],[0,2],[73,3],[72,1],[70,2],[68,2],[67,2],[68,2],[72,2],[75,2],[77,4],[75,4],[70,2],[72,2],[73,2],[75,2],[77,3],[0,1],[75,2],[73,2],[72,2],[70,2],[68,3],[0,1],[77,2],[75,2],[73,2],[72,2],[70,2],[68,2],[67,2],[68,2],[77,2],[75,2],[73,4],[72,4],[70,2],[68,2],[67,2],[65,2],[68,4],[72,2],[75,2],[77,4],[79,2],[0,2],[77,2],[75,2],[73,2],[72,2],[70,2],[72,2],[73,2],[75,2],[77,2],[75,2],[73,2],[72,2],[73,2],[72,2],[70,2],[68,2],[67,2],[68,2],[70,2],[72,2],[70,3],[0,1],[75,2],[73,2],[72,2],[70,2],[68,2],[67,2],[68,2],[0,2],[70,2],[75,2],[80,2],[79,2],[77,2],[75,2],[70,2],[68,2],[67,2],[65,2],[67,1],[68,1],[70,1],[72,1],[73,2],[75,2],[77,2],[75,2],[73,2],[72,2],[70,2],[68,2],[67,2],[65,2],[68,2],[72,2],[77,4],[75,4],[73,2],[72,2],[70,2],[68,2],[77,8],[72,4],[68,4],[65,8],[0,8]];
+  // BGM5: ギャランドゥ風 BPM132 Eマイナー Em/Am/Bm/C/G/D
+  const B5P=[{r:28,f:35,d:4},{r:33,f:40,d:4},{r:35,f:42,d:4},{r:36,f:43,d:4},{r:43,f:50,d:4},{r:38,f:45,d:4},{r:28,f:35,d:4},{r:28,f:35,d:4},{r:33,f:40,d:4},{r:35,f:42,d:4},{r:36,f:43,d:4},{r:38,f:45,d:4},{r:28,f:35,d:4},{r:28,f:35,d:8}];
+  const B5M=[[0,4],[64,2],[67,2],[71,4],[69,2],[67,2],[64,2],[67,2],[69,4],[67,2],[64,2],[62,4],[62,2],[66,2],[69,4],[71,2],[69,2],[66,4],[64,2],[67,2],[72,4],[71,2],[69,2],[67,4],[67,2],[71,2],[74,4],[72,2],[71,2],[69,4],[69,2],[73,2],[76,4],[74,2],[73,2],[71,4],[71,4],[69,2],[67,2],[64,4],[62,4],[62,3],[64,1],[66,4],[67,4],[0,4],[69,2],[0,2],[69,2],[71,2],[72,4],[71,2],[69,2],[71,2],[0,2],[71,2],[73,2],[74,4],[73,2],[71,2],[72,3],[71,1],[69,2],[67,2],[64,2],[66,2],[67,2],[0,2],[69,2],[71,2],[73,2],[74,2],[76,4],[74,2],[73,2],[74,4],[71,4],[69,4],[67,4],[67,4],[64,4],[62,8],[0,16]];
 
   function play(num){
     if(cur===num)return;
@@ -2300,6 +2303,7 @@ const _bgm = (() => {
       2:{prog:B2P,mel:B2M,bpm:158,arp:false},
       3:{prog:B3P,mel:B3M,bpm:168,arp:false},
       4:{prog:B4P,mel:B4M,bpm:128,arp:true,ap:B4A},
+      5:{prog:B5P,mel:B5M,bpm:132,arp:false},
     };
     const {prog,mel,bpm,arp,ap}=cfgs[cur];
     const b=60/bpm,s16=b/4;
@@ -2405,24 +2409,31 @@ function _checkZeconovaGone() {
 }
 
 // BGM状態チェック：撃墜・乗り換え後に適切なBGMへ戻す
+// 優先順位: BGM4（e05）> BGM5（e03）> BGM3（e01/e02/e04）> BGM2
 function _checkBGMAfterUnitLost() {
   if (!ssBGMEnabled) return;
-  // マップ上にイベント出現ユニット（noCards=true, e01-e04）が残っているか
-  const hasThirdForce = gs.players && gs.players.some(p =>
-    p.noCards && !p.destroyed && p.unit &&
-    ['e01','e02','e03','e04'].includes(p.unit.templateId)
-  );
-  // マップ上にゼーコアクス（e05）が残っているか
+  // ゼーコアクス（e05）
   const hasZeconova = gs.players && gs.players.some(p =>
     !p.destroyed && p.unit && p.unit.templateId === 'e05'
   );
+  // ミヨン＝ドゥ（e03）
+  const hasMiyon = gs.players && gs.players.some(p =>
+    p.noCards && !p.destroyed && p.unit && p.unit.templateId === 'e03'
+  );
+  // フージィ・トリーズナー・蝶AI（e01/e02/e04）
+  const hasOtherThirdForce = gs.players && gs.players.some(p =>
+    p.noCards && !p.destroyed && p.unit &&
+    ['e01','e02','e04'].includes(p.unit.templateId)
+  );
 
   if (hasZeconova) {
-    _bgm.play(4); // ゼーコアクスがいる → BGM4
-  } else if (hasThirdForce) {
-    _bgm.play(3); // イベント出現ユニットがいる → BGM3
+    _bgm.play(4);
+  } else if (hasMiyon) {
+    _bgm.play(5);
+  } else if (hasOtherThirdForce) {
+    _bgm.play(3);
   } else {
-    _bgm.play(2); // どちらもいない → BGM2（通常戦闘）
+    _bgm.play(2);
   }
 }
 
@@ -3971,8 +3982,13 @@ function forceDrawCard(player) {
   // If deck is empty, shuffle discard pile into deck
   if (gs.deck.length === 0) {
     if (gs.discard.length === 0) return null; // no cards anywhere
-    gs.deck = [...gs.discard];
-    gs.discard = [];
+    // card13退避中はデッキに含めない
+    gs.deck = gs._card13Exiled
+      ? gs.discard.filter(id => id !== 'card13')
+      : [...gs.discard];
+    gs.discard = gs._card13Exiled
+      ? gs.discard.filter(id => id === 'card13') // card13だけ捨て札に残す
+      : [];
     shuffleDeck();
     addLog('山札がなくなったため、捨て札を戻してシャッフルした。', 'log-progress');
   }
@@ -4857,6 +4873,7 @@ function startGame(rematch) {
   gs._postDmgAttacker = null;
   gs._postDmgDefender = null;
   gs._cpuUsedCounter = false;
+  gs._card13Exiled = false; // e04出現中はcard13を退避（デッキ・捨て札から除外）
   gs._evacCallback = null;
   gs.currentEventId = null; gs.currentEventText = null;
   gs._eventMoveCallback = null;
@@ -5218,7 +5235,8 @@ function updateMissionPanel() {
 // EVENT SYSTEM
 // ============================================================
 function initEventDeck() {
-  gs.eventDeck = Object.keys(EVENT_DB);
+  // event34は通常デッキに入れない（捨て札card13条件で特別発生）
+  gs.eventDeck = Object.keys(EVENT_DB).filter(id => id !== 'event34');
   for (let i = gs.eventDeck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [gs.eventDeck[i], gs.eventDeck[j]] = [gs.eventDeck[j], gs.eventDeck[i]];
@@ -5247,6 +5265,43 @@ function drawEventCard() {
 const EVENTS_NEED_OTHER_UNITS = new Set(['event05','event06','event11','event15']);
 
 function triggerEvent(player, callback) {
+  // --- event34特別発生チェック ---
+  // 捨て札にcard13があり、event34未使用かつe04未出現のとき、50%でevent34を発生させる
+  const card13InDiscard = gs.discard.includes('card13');
+  const event34Unused = !gs.usedOneTimeEvents.includes('event34');
+  const e04Alive = gs.players && gs.players.some(p =>
+    p.noCards && !p.destroyed && p.unit && p.unit.templateId === 'e04'
+  );
+  if (card13InDiscard && event34Unused && !e04Alive && Math.random() < 0.5) {
+    // event34を発火（通常のtriggerEventフローに合流）
+    const ev34 = EVENT_DB['event34'];
+    gs.usedOneTimeEvents.push('event34');
+    gs.eventHistory.push('event34');
+    addLog(`イベント「${ev34.name}」が発生した。`, 'log-event');
+    const _prevId34 = gs.currentEventId;
+    if (_prevId34 && EVENT_DB[_prevId34]
+        && EVENT_DB[_prevId34].type === 'instant'
+        && !['event31','event32','event33','event34','event35'].includes(_prevId34)) {
+      gs.doneInstantEvents.add(_prevId34);
+    }
+    if (gs.activeEvent) clearContinuousEvent();
+    gs.currentEventId = 'event34';
+    updateEventPanel();
+    showEventOverlay('event34', () => {
+      executeEvent('event34', player, () => {
+        // event34はインスタントだが出現中は終了させない（event31-34と同じ扱い）
+        updateEventPanel();
+        checkAllHandLimits(() => {
+          checkMissions('event', { player }, () => {
+            if (gs.phase === 'gameover') return;
+            if (callback) callback();
+          });
+        });
+      });
+    }, player);
+    return;
+  }
+
   // Draw event, re-draw if it needs other units but none exist
   let eventId = drawEventCard();
   let redraws = 0;
@@ -6253,6 +6308,16 @@ function eventSpawnThirdForce(eventId, player, callback) {
 
   // Add to end of turn order
   gs.turnOrder.push(tfPlayer.idx);
+
+  // event34（e04出現）のとき：捨て札からcard13を退避（e04が生きている間は除外）
+  if (eventId === 'event34') {
+    const idx13 = gs.discard.indexOf('card13');
+    if (idx13 !== -1) {
+      gs.discard.splice(idx13, 1);
+      gs._card13Exiled = true;
+      addLog('捨て札の覚醒前ゼーコガンニョムが消えた…。', 'log-event');
+    }
+  }
 
   const spawnMessages = {
     e01: '美形だっ!!!',
@@ -7678,8 +7743,13 @@ function applyDraw(player, cardId, rawDice, cappedDice, returnCallback) {
     // Bypass hand limit for draw skill — push directly
     if (gs.deck.length === 0) {
       if (gs.discard.length === 0) break;
-      gs.deck = [...gs.discard];
-      gs.discard = [];
+      // card13退避中はデッキに含めない
+      gs.deck = gs._card13Exiled
+        ? gs.discard.filter(id => id !== 'card13')
+        : [...gs.discard];
+      gs.discard = gs._card13Exiled
+        ? gs.discard.filter(id => id === 'card13')
+        : [];
       shuffleDeck();
       addLog('山札がなくなったため、捨て札を戻してシャッフルした。', 'log-progress');
     }
@@ -8573,6 +8643,12 @@ function applyDamage(target, dmg, attacker) {
         if (gs.currentEventId === eid) gs.currentEventId = null;
         updateEventPanel();
       }
+    }
+    // event34（e04）撃墜時：退避していたcard13を捨て札に戻す
+    if (target.unit && target.unit.templateId === 'e04' && gs._card13Exiled) {
+      gs._card13Exiled = false;
+      gs.discard.push('card13');
+      addLog('覚醒ゼーコガンニョムが撃墜された。ゼーコガンニョムのカードが捨て札に戻った。', 'log-event');
     }
     if (target.unit.sourceCardId) {
       gs.discard.push(target.unit.sourceCardId);
