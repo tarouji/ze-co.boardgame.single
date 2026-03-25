@@ -1421,7 +1421,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.30</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.32</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -3952,7 +3952,8 @@ function showSkillOverlay(cardId, diceValue, effectText, effectClass, callback, 
   // 音順：まずサイコロ音 → 0.2秒後に演出表示 → 0.35秒後にスキル音（失敗時はスキル音なし）
   _audio.dice();
   const isFail = effectClass === 'skill-effect-fail';
-  if (!isFail) setTimeout(() => _audio.skill(), 350);
+  let skillSoundTimer = null;
+  if (!isFail) skillSoundTimer = setTimeout(() => { skillSoundTimer = null; _audio.skill(); }, 350);
 
   // Track skill failure for mission06
   const failPlayer = (isFail && skillUser) ? skillUser : null;
@@ -3976,6 +3977,11 @@ function showSkillOverlay(cardId, diceValue, effectText, effectClass, callback, 
     const handler = () => {
       overlay.classList.remove('active');
       overlay.removeEventListener('click', handler);
+      // オーバーレイを閉じた時点でskill音タイマーが残っていればキャンセル
+      if (skillSoundTimer !== null) {
+        clearTimeout(skillSoundTimer);
+        skillSoundTimer = null;
+      }
       if (failPlayer) {
         checkMissions('skillFail', { player: failPlayer }, () => {
           if (callback) callback();
@@ -6391,7 +6397,6 @@ function eventSpawnThirdForce(eventId, player, callback) {
     if (idx13 !== -1) {
       gs.discard.splice(idx13, 1);
       gs._card13Exiled = true;
-      addLog('捨て札の覚醒前ゼーコガンニョムが消えた…。', 'log-event');
     }
   }
 
@@ -8726,7 +8731,6 @@ function applyDamage(target, dmg, attacker) {
     if (target.unit && target.unit.templateId === 'e04' && gs._card13Exiled) {
       gs._card13Exiled = false;
       gs.discard.push('card13');
-      addLog('覚醒ゼーコガンニョムが撃墜された。ゼーコガンニョムのカードが捨て札に戻った。', 'log-event');
     }
     if (target.unit.sourceCardId) {
       gs.discard.push(target.unit.sourceCardId);
