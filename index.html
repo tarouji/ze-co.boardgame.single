@@ -1421,7 +1421,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.32</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.35</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -2723,13 +2723,6 @@ let ssBGMEnabled = true; // BGM設定（true=あり、false=なし）
 
 function ssBGMSelect(enabled) {
   ssBGMEnabled = enabled;
-  if (!enabled) {
-    // BGMなしに切り替えたとき、流れているBGMを即座に停止
-    _bgm.stop();
-  } else if (gs.phase === 'title') {
-    // BGMありに切り替えたとき、タイトル画面ならBGM1を再生
-    _bgm.play(1);
-  }
   // PC版ボタン
   const onPC  = document.getElementById('ss-bgm-on');
   const offPC = document.getElementById('ss-bgm-off');
@@ -2838,12 +2831,12 @@ function ssStartGame() {
 
   if (isMobile()) {
     document.getElementById('ms-start-screen').classList.remove('active');
-    if (ssBGMEnabled) _bgm.play(2);
+    if (ssBGMEnabled) _bgm.play(2); else _bgm.stop();
     startGame();
     msShowGame();
   } else {
     document.getElementById('start-screen').classList.add('hidden');
-    if (ssBGMEnabled) _bgm.play(2);
+    if (ssBGMEnabled) _bgm.play(2); else _bgm.stop();
     startGame();
   }
 }
@@ -3254,8 +3247,6 @@ function msAddLog(text, type) {
 }
 
 function returnToTitle() {
-  if (ssBGMEnabled) _bgm.play(1);
-  else _bgm.stop();
   if (isMobile()) {
     msReturnToTitle();
   } else {
@@ -3426,9 +3417,9 @@ function _showCardListZoom(src, onClose) {
 
 
 function setGameOverButtons() {
-  _bgm.stop();
+  if (ssBGMEnabled) _bgm.play(1); else _bgm.stop();
   setButtons([
-    { text:'もう一度対戦する', cls:'btn-purple', action:() => { _audio.rematch(); setTimeout(() => { if (ssBGMEnabled) _bgm.play(2); startGame(true); }, 100); } },
+    { text:'もう一度対戦する', cls:'btn-purple', action:() => { _audio.rematch(); setTimeout(() => { if (ssBGMEnabled) _bgm.play(2); else _bgm.stop(); startGame(true); }, 100); } },
     { text:'タイトル画面に戻る', cls:'btn-purple', action:() => { _audio.titleBack(); setTimeout(() => returnToTitle(), 500); } }
   ]);
 }
