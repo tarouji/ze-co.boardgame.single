@@ -806,6 +806,11 @@
   .ss-stat-alloc { display: flex; flex-direction: column; gap: 10px; }
   .ss-stat-remain { text-align: center; font-size: 13px; color: #8899bb; margin-bottom: 4px; }
   .ss-stat-remain span { color: #ffd700; font-weight: 900; font-size: 20px; }
+  .ss-stat-remain-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px; }
+  .ss-stat-remain-label { font-size: 13px; color: #8899bb; }
+  .ss-stat-remain-label span { color: #ffd700; font-weight: 900; font-size: 20px; }
+  .ss-stat-quick-btn { padding: 4px 12px; border-radius: 4px; border: 1px solid #2a3a52; background: #1a2235; color: #8899bb; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s; }
+  .ss-stat-quick-btn:hover { border-color: #5a9cf5; color: #c0d0e8; }
   .ss-stat-row { display: flex; align-items: center; gap: 10px; }
   .ss-stat-name { width: 50px; font-size: 14px; font-weight: 700; color: #aab; text-align: right; }
   .ss-stat-btn {
@@ -923,6 +928,10 @@
   }
   /* ステータス */
   .ms-stat-remain { font-size: 11px; color: #8899bb; margin-bottom: 2px; }
+  .ms-stat-remain-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .ms-stat-remain-label { font-size: 11px; color: #8899bb; }
+  .ms-stat-quick-btn { padding: 3px 10px; border-radius: 4px; border: 1px solid #2a3a55; background: #1a2235; color: #8a9ab0; font-size: 10px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.15s; }
+  .ms-stat-quick-btn:hover { border-color: #5a9cf5; color: #c0d0e8; }
   .ms-stat-row {
     display: flex; align-items: center; gap: 6px;
   }
@@ -1205,7 +1214,11 @@
       </div>
       <div class="ms-section">
         <div class="ms-label">ステータス設定</div>
-        <div class="ms-stat-remain">残り: <span id="ms-stat-remain">9</span></div>
+        <div class="ms-stat-remain-row">
+          <div class="ms-stat-remain-label">残り: <span id="ms-stat-remain">9</span></div>
+          <button class="ms-stat-quick-btn" onclick="ssClearStats()">クリア</button>
+          <button class="ms-stat-quick-btn" onclick="ssRandomStats()">ランダム</button>
+        </div>
         <div class="ms-stat-row">
           <div class="ms-stat-name">技術</div>
           <button class="ms-stat-btn" onclick="msChangeStat('tech',-1)">−</button>
@@ -1333,7 +1346,11 @@
     <div class="ss-section">
       <div class="ss-label">ステータス設定</div>
       <div class="ss-stat-alloc">
-        <div class="ss-stat-remain">残り: <span id="ss-stat-remain">9</span></div>
+        <div class="ss-stat-remain-row">
+          <div class="ss-stat-remain-label">残り: <span id="ss-stat-remain">9</span></div>
+          <button class="ss-stat-quick-btn" onclick="ssClearStats()">クリア</button>
+          <button class="ss-stat-quick-btn" onclick="ssRandomStats()">ランダム</button>
+        </div>
         <div class="ss-stat-row">
           <div class="ss-stat-name">技術</div>
           <button class="ss-stat-btn" onclick="ssChangeStat('tech',-1)">−</button>
@@ -1404,7 +1421,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.26</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.30</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -1689,9 +1706,9 @@ const _audio = (() => {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(900, now);
         osc.frequency.exponentialRampToValueAtTime(180, now + 0.18);
-        gain.gain.setValueAtTime(0.306, now);
+        gain.gain.setValueAtTime(0.7, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        osc.start(now); osc.stop(now + 0.2);
+        osc.start(now); osc.stop(now + 0.3);
       } catch(e) {}
     },
 
@@ -1712,7 +1729,7 @@ const _audio = (() => {
         filter.frequency.exponentialRampToValueAtTime(800, now + dur);
         filter.Q.value = 0.8;
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.374, now);
+        gain.gain.setValueAtTime(0.7, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         src.connect(filter); filter.connect(gain); gain.connect(ac.destination);
         src.start(now); src.stop(now + dur + 0.02);
@@ -1730,10 +1747,10 @@ const _audio = (() => {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(120, now);
         osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
-        gainO.gain.setValueAtTime(0.2, now);
+        gainO.gain.setValueAtTime(0.549, now);
         gainO.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
         osc.connect(gainO); gainO.connect(ac.destination);
-        osc.start(now); osc.stop(now + 0.2);
+        osc.start(now); osc.stop(now + 0.3);
         // ノイズ打撃成分
         const dur = 0.08;
         const buf = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate);
@@ -1744,7 +1761,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 200;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.255, now);
+        ngain.gain.setValueAtTime(0.7, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.02);
@@ -1775,8 +1792,8 @@ const _audio = (() => {
         lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.306, now + 0.05);
-        gain.gain.setValueAtTime(0.306, now + dur - 0.1);
+        gain.gain.linearRampToValueAtTime(0.7, now + 0.05);
+        gain.gain.setValueAtTime(0.7, now + dur - 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         lfo.start(now); osc.start(now);
@@ -1816,15 +1833,15 @@ const _audio = (() => {
         filt2.type = 'lowpass'; filt2.frequency.value = 200;
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.068, now + 0.2);
-        gain2.gain.linearRampToValueAtTime(0.102, now + 0.5);
+        gain2.gain.linearRampToValueAtTime(0.1364, now + 0.3);
+        gain2.gain.linearRampToValueAtTime(0.1364, now + 0.5);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc2.connect(filt2); filt2.connect(gain2); gain2.connect(ac.destination);
         // メインゲイン
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.374, now + 0.12);
-        gain.gain.setValueAtTime(0.374, now + dur - 0.15);
+        gain.gain.linearRampToValueAtTime(0.5, now + 0.12);
+        gain.gain.setValueAtTime(0.5, now + dur - 0.15);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         lfo.start(now); osc.start(now); osc2.start(now);
@@ -1844,7 +1861,7 @@ const _audio = (() => {
         osc.frequency.linearRampToValueAtTime(2400, now + 0.06);
         osc.frequency.exponentialRampToValueAtTime(1200, now + 0.18);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.374, now);
+        gain.gain.setValueAtTime(0.4, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + 0.25);
@@ -1855,8 +1872,8 @@ const _audio = (() => {
         osc2.frequency.exponentialRampToValueAtTime(4800, now + 0.12);
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.17, now + 0.06);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        gain2.gain.linearRampToValueAtTime(0.2727, now + 0.06);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc2.connect(gain2); gain2.connect(ac.destination);
         osc2.start(now + 0.04); osc2.stop(now + 0.22);
       } catch(e) {}
@@ -1870,9 +1887,9 @@ const _audio = (() => {
         const osc = ac.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(200, now);
-        osc.frequency.exponentialRampToValueAtTime(60, now + 0.2);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.34, now);
+        gain.gain.setValueAtTime(0.6, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + 0.3);
@@ -1885,7 +1902,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 300;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.255, now);
+        ngain.gain.setValueAtTime(0.3, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.02);
@@ -1905,8 +1922,8 @@ const _audio = (() => {
         const filt1 = ac.createBiquadFilter();
         filt1.type = 'lowpass'; filt1.frequency.value = 400;
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.2, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        gain1.gain.setValueAtTime(0.2614, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.525);
         osc1.connect(filt1); filt1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.4);
         // 中音の広がり
@@ -1918,7 +1935,7 @@ const _audio = (() => {
         filt2.type = 'bandpass'; filt2.frequency.value = 300; filt2.Q.value = 0.8;
         const gain2 = ac.createGain();
         gain2.gain.setValueAtTime(0, now);
-        gain2.gain.linearRampToValueAtTime(0.255, now + 0.05);
+        gain2.gain.linearRampToValueAtTime(0.3333, now + 0.05);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
         osc2.connect(filt2); filt2.connect(gain2); gain2.connect(ac.destination);
         osc2.start(now + 0.03); osc2.stop(now + 0.5);
@@ -1931,7 +1948,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 500;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.204, now);
+        ngain.gain.setValueAtTime(0.4, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur3);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur3 + 0.02);
@@ -1952,10 +1969,10 @@ const _audio = (() => {
           osc.frequency.value = freq;
           const gain = ac.createGain();
           const t = now + times[i];
-          const dur = i < freqs.length - 1 ? 0.2 : 0.9;
+          const dur = i < freqs.length - 1 ? 0.3 : 0.9;
           gain.gain.setValueAtTime(0, t);
-          gain.gain.linearRampToValueAtTime(0.34, t + 0.02);
-          gain.gain.setValueAtTime(0.34, t + dur - 0.08);
+          gain.gain.linearRampToValueAtTime(0.7, t + 0.02);
+          gain.gain.setValueAtTime(0.7, t + dur - 0.08);
           gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
           osc.connect(gain); gain.connect(ac.destination);
           osc.start(t); osc.stop(t + dur + 0.05);
@@ -1965,7 +1982,7 @@ const _audio = (() => {
           osc2.frequency.value = freq * 2;
           const gain2 = ac.createGain();
           gain2.gain.setValueAtTime(0, t);
-          gain2.gain.linearRampToValueAtTime(0.119, t + 0.02);
+          gain2.gain.linearRampToValueAtTime(0.1633, t + 0.02);
           gain2.gain.exponentialRampToValueAtTime(0.001, t + dur);
           osc2.connect(gain2); gain2.connect(ac.destination);
           osc2.start(t); osc2.stop(t + dur + 0.05);
@@ -1984,7 +2001,7 @@ const _audio = (() => {
         osc.frequency.setValueAtTime(1200, now);
         osc.frequency.exponentialRampToValueAtTime(80, now + dur);
         const gain = ac.createGain();
-        gain.gain.setValueAtTime(0.425, now);
+        gain.gain.setValueAtTime(0.5, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(gain); gain.connect(ac.destination);
         osc.start(now); osc.stop(now + dur + 0.05);
@@ -1998,7 +2015,7 @@ const _audio = (() => {
         nfilt.frequency.exponentialRampToValueAtTime(100, now + dur);
         nfilt.Q.value = 2;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.17, now);
+        ngain.gain.setValueAtTime(0.3, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur + 0.05);
@@ -2029,8 +2046,8 @@ const _audio = (() => {
         lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
         const gain = ac.createGain();
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.34, now + 0.08);
-        gain.gain.setValueAtTime(0.34, now + dur - 0.1);
+        gain.gain.linearRampToValueAtTime(0.7, now + 0.08);
+        gain.gain.setValueAtTime(0.7, now + dur - 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
         osc.connect(filt); filt.connect(gain); gain.connect(ac.destination);
         // ノイズ爆発成分（最初の一発）
@@ -2041,7 +2058,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 500;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.306, now);
+        ngain.gain.setValueAtTime(0.42, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         lfo.start(now); osc.start(now); nsrc.start(now);
@@ -2056,7 +2073,7 @@ const _audio = (() => {
         const now = ac.currentTime;
         // ド・ミ・ソ・ドの上昇アルペジオ
         const notes = [261.63, 329.63, 392.00, 523.25];
-        const times = [0, 0.1, 0.2, 0.32];
+        const times = [0, 0.1, 0.3, 0.32];
         notes.forEach((freq, i) => {
           const osc = ac.createOscillator();
           osc.type = 'triangle';
@@ -2065,8 +2082,8 @@ const _audio = (() => {
           const t = now + times[i];
           const dur = i < 3 ? 0.18 : 0.55;
           gain.gain.setValueAtTime(0, t);
-          gain.gain.linearRampToValueAtTime(0.374, t + 0.02);
-          gain.gain.setValueAtTime(0.374, t + dur - 0.05);
+          gain.gain.linearRampToValueAtTime(0.4, t + 0.02);
+          gain.gain.setValueAtTime(0.4, t + dur - 0.05);
           gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
           osc.connect(gain); gain.connect(ac.destination);
           osc.start(t); osc.stop(t + dur + 0.05);
@@ -2078,7 +2095,7 @@ const _audio = (() => {
         const gain5 = ac.createGain();
         const t5 = now + 0.32;
         gain5.gain.setValueAtTime(0, t5);
-        gain5.gain.linearRampToValueAtTime(0.17, t5 + 0.02);
+        gain5.gain.linearRampToValueAtTime(0.2727, t5 + 0.02);
         gain5.gain.exponentialRampToValueAtTime(0.001, t5 + 0.5);
         osc5.connect(gain5); gain5.connect(ac.destination);
         osc5.start(t5); osc5.stop(t5 + 0.55);
@@ -2096,7 +2113,7 @@ const _audio = (() => {
         osc1.frequency.setValueAtTime(120, now);
         osc1.frequency.exponentialRampToValueAtTime(25, now + 0.5);
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.50, now);
+        gain1.gain.setValueAtTime(0.4737, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         osc1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.65);
@@ -2109,7 +2126,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 400;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.68, now);
+        ngain.gain.setValueAtTime(0.9, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur2);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur2 + 0.05);
@@ -2121,10 +2138,10 @@ const _audio = (() => {
         const filt3 = ac.createBiquadFilter();
         filt3.type = 'bandpass'; filt3.frequency.value = 500; filt3.Q.value = 0.8;
         const gain3 = ac.createGain();
-        gain3.gain.setValueAtTime(0.30, now);
+        gain3.gain.setValueAtTime(0.2842, now);
         gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc3.connect(filt3); filt3.connect(gain3); gain3.connect(ac.destination);
-        osc3.start(now); osc3.stop(now + 0.35);
+        osc3.start(now); osc3.stop(now + 0.525);
         // 余韻（低いうなり）
         const osc4 = ac.createOscillator();
         osc4.type = 'sine';
@@ -2132,7 +2149,7 @@ const _audio = (() => {
         osc4.frequency.exponentialRampToValueAtTime(20, now + 0.8);
         const gain4 = ac.createGain();
         gain4.gain.setValueAtTime(0, now);
-        gain4.gain.linearRampToValueAtTime(0.51, now + 0.15);
+        gain4.gain.linearRampToValueAtTime(0.7247, now + 0.15);
         gain4.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
         osc4.connect(gain4); gain4.connect(ac.destination);
         osc4.start(now + 0.1); osc4.stop(now + 0.85);
@@ -2150,8 +2167,8 @@ const _audio = (() => {
         osc1.frequency.setValueAtTime(150, now);
         osc1.frequency.exponentialRampToValueAtTime(30, now + 0.3);
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.35, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        gain1.gain.setValueAtTime(0.4804, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.525);
         osc1.connect(gain1); gain1.connect(ac.destination);
         osc1.start(now); osc1.stop(now + 0.4);
         // ノイズ爆風
@@ -2163,7 +2180,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 600;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.51, now);
+        ngain.gain.setValueAtTime(0.7, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur2);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur2 + 0.02);
@@ -2171,12 +2188,12 @@ const _audio = (() => {
         const osc3 = ac.createOscillator();
         osc3.type = 'sawtooth';
         osc3.frequency.setValueAtTime(200, now);
-        osc3.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+        osc3.frequency.exponentialRampToValueAtTime(50, now + 0.3);
         const filt3 = ac.createBiquadFilter();
         filt3.type = 'bandpass'; filt3.frequency.value = 400; filt3.Q.value = 0.8;
         const gain3 = ac.createGain();
-        gain3.gain.setValueAtTime(0.2, now);
-        gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        gain3.gain.setValueAtTime(0.2745, now);
+        gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc3.connect(filt3); filt3.connect(gain3); gain3.connect(ac.destination);
         osc3.start(now); osc3.stop(now + 0.25);
       } catch(e) {}
@@ -2193,20 +2210,20 @@ const _audio = (() => {
         osc1.frequency.setValueAtTime(180, now);
         osc1.frequency.exponentialRampToValueAtTime(45, now + 0.25);
         const gain1 = ac.createGain();
-        gain1.gain.setValueAtTime(0.2, now);
+        gain1.gain.setValueAtTime(0.4706, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc1.connect(gain1); gain1.connect(ac.destination);
-        osc1.start(now); osc1.stop(now + 0.35);
+        osc1.start(now); osc1.stop(now + 0.525);
         // 高音の衝撃（シュパーン成分）
         const osc2 = ac.createOscillator();
         osc2.type = 'sawtooth';
         osc2.frequency.setValueAtTime(600, now);
-        osc2.frequency.exponentialRampToValueAtTime(120, now + 0.2);
+        osc2.frequency.exponentialRampToValueAtTime(120, now + 0.3);
         const filt2 = ac.createBiquadFilter();
         filt2.type = 'bandpass'; filt2.frequency.value = 800; filt2.Q.value = 1.5;
         const gain2 = ac.createGain();
-        gain2.gain.setValueAtTime(0.2, now);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        gain2.gain.setValueAtTime(0.4706, now);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc2.connect(filt2); filt2.connect(gain2); gain2.connect(ac.destination);
         osc2.start(now); osc2.stop(now + 0.25);
         // ノイズのバースト（爆発感）
@@ -2218,7 +2235,7 @@ const _audio = (() => {
         const nfilt = ac.createBiquadFilter();
         nfilt.type = 'lowpass'; nfilt.frequency.value = 600;
         const ngain = ac.createGain();
-        ngain.gain.setValueAtTime(0.255, now);
+        ngain.gain.setValueAtTime(0.6, now);
         ngain.gain.exponentialRampToValueAtTime(0.001, now + dur3);
         nsrc.connect(nfilt); nfilt.connect(ngain); ngain.connect(ac.destination);
         nsrc.start(now); nsrc.stop(now + dur3 + 0.02);
@@ -2229,7 +2246,7 @@ const _audio = (() => {
         osc3.frequency.exponentialRampToValueAtTime(80, now + 0.5);
         const gain3 = ac.createGain();
         gain3.gain.setValueAtTime(0, now);
-        gain3.gain.linearRampToValueAtTime(0.255, now + 0.07);
+        gain3.gain.linearRampToValueAtTime(0.6, now + 0.07);
         gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
         osc3.connect(gain3); gain3.connect(ac.destination);
         osc3.start(now + 0.05); osc3.stop(now + 0.55);
@@ -2251,7 +2268,7 @@ const _audio = (() => {
           const filt = ac.createBiquadFilter(); filt.type = 'bandpass';
           filt.frequency.value = 1500; filt.Q.value = 1.5;
           const gain = ac.createGain();
-          gain.gain.setValueAtTime(0.306, t);
+          gain.gain.setValueAtTime(0.9, t);
           gain.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.02);
           src.connect(filt); filt.connect(gain); gain.connect(ac.destination);
           src.start(t); src.stop(t + dur + 0.03);
@@ -2286,6 +2303,9 @@ const _bgm = (() => {
   // BGM5: ギャランドゥ風 BPM132 Eマイナー Em/Am/Bm/C/G/D
   const B5P=[{r:28,f:35,d:4},{r:33,f:40,d:4},{r:35,f:42,d:4},{r:36,f:43,d:4},{r:43,f:50,d:4},{r:38,f:45,d:4},{r:28,f:35,d:4},{r:28,f:35,d:4},{r:33,f:40,d:4},{r:35,f:42,d:4},{r:36,f:43,d:4},{r:38,f:45,d:4},{r:28,f:35,d:4},{r:28,f:35,d:8}];
   const B5M=[[0,4],[64,2],[67,2],[71,4],[69,2],[67,2],[64,2],[67,2],[69,4],[67,2],[64,2],[62,4],[62,2],[66,2],[69,4],[71,2],[69,2],[66,4],[64,2],[67,2],[72,4],[71,2],[69,2],[67,4],[67,2],[71,2],[74,4],[72,2],[71,2],[69,4],[69,2],[73,2],[76,4],[74,2],[73,2],[71,4],[71,4],[69,2],[67,2],[64,4],[62,4],[62,3],[64,1],[66,4],[67,4],[0,4],[69,2],[0,2],[69,2],[71,2],[72,4],[71,2],[69,2],[71,2],[0,2],[71,2],[73,2],[74,4],[73,2],[71,2],[72,3],[71,1],[69,2],[67,2],[64,2],[66,2],[67,2],[0,2],[69,2],[71,2],[73,2],[74,2],[76,4],[74,2],[73,2],[74,4],[71,4],[69,4],[67,4],[67,4],[64,4],[62,8],[0,16]];
+  // BGM6: 宇宙を駆ける～ゼータの発動～風 BPM144 Dマイナー Dm/Gm/A/Bb/F/C
+  const B6P=[{r:38,f:45,d:4},{r:43,f:50,d:4},{r:45,f:52,d:4},{r:38,f:45,d:4},{r:46,f:53,d:4},{r:41,f:48,d:4},{r:48,f:55,d:4},{r:38,f:45,d:4},{r:46,f:53,d:4},{r:41,f:48,d:4},{r:48,f:55,d:4},{r:45,f:52,d:4},{r:43,f:50,d:4},{r:45,f:52,d:4},{r:38,f:45,d:4},{r:38,f:45,d:8}];
+  const B6M=[[0,2],[69,2],[72,2],[74,2],[75,4],[74,2],[72,2],[70,2],[74,2],[70,2],[67,2],[65,4],[0,4],[69,2],[72,2],[76,2],[77,2],[76,4],[74,2],[72,2],[69,4],[72,4],[74,4],[0,4],[75,3],[74,1],[72,2],[70,2],[70,4],[69,2],[67,2],[65,2],[67,2],[69,2],[70,2],[72,4],[0,4],[72,2],[74,2],[75,2],[77,2],[79,4],[77,2],[75,2],[74,4],[72,4],[69,4],[0,4],[75,2],[0,2],[75,2],[77,2],[79,4],[77,2],[75,2],[74,2],[0,2],[74,2],[75,2],[77,4],[75,2],[74,2],[72,2],[74,2],[75,2],[77,2],[79,2],[81,2],[79,2],[77,2],[76,4],[74,4],[72,4],[0,4],[70,2],[72,2],[74,2],[75,2],[74,4],[72,2],[70,2],[69,2],[72,2],[76,2],[77,2],[76,4],[74,2],[72,2],[69,4],[72,4],[74,4],[75,4],[74,4],[72,4],[69,8],[0,16]];
 
   function play(num){
     if(cur===num)return;
@@ -2304,6 +2324,7 @@ const _bgm = (() => {
       3:{prog:B3P,mel:B3M,bpm:168,arp:false},
       4:{prog:B4P,mel:B4M,bpm:128,arp:true,ap:B4A},
       5:{prog:B5P,mel:B5M,bpm:132,arp:false},
+      6:{prog:B6P,mel:B6M,bpm:144,arp:false},
     };
     const {prog,mel,bpm,arp,ap}=cfgs[cur];
     const b=60/bpm,s16=b/4;
@@ -2409,25 +2430,31 @@ function _checkZeconovaGone() {
 }
 
 // BGM状態チェック：撃墜・乗り換え後に適切なBGMへ戻す
-// 優先順位: BGM4（e05）> BGM5（e03）> BGM3（e01/e02/e04）> BGM2
+// 優先順位: BGM4（e05）> BGM6（e04）> BGM5（e03）> BGM3（e01/e02）> BGM2
 function _checkBGMAfterUnitLost() {
   if (!ssBGMEnabled) return;
   // ゼーコアクス（e05）
   const hasZeconova = gs.players && gs.players.some(p =>
     !p.destroyed && p.unit && p.unit.templateId === 'e05'
   );
+  // 覚醒ゼーコガンニョム（e04）
+  const hasAwakened = gs.players && gs.players.some(p =>
+    p.noCards && !p.destroyed && p.unit && p.unit.templateId === 'e04'
+  );
   // ミヨン＝ドゥ（e03）
   const hasMiyon = gs.players && gs.players.some(p =>
     p.noCards && !p.destroyed && p.unit && p.unit.templateId === 'e03'
   );
-  // フージィ・トリーズナー・蝶AI（e01/e02/e04）
+  // フージィ・ワタマール／トリーズナー・カズシ（e01/e02）
   const hasOtherThirdForce = gs.players && gs.players.some(p =>
     p.noCards && !p.destroyed && p.unit &&
-    ['e01','e02','e04'].includes(p.unit.templateId)
+    ['e01','e02'].includes(p.unit.templateId)
   );
 
   if (hasZeconova) {
     _bgm.play(4);
+  } else if (hasAwakened) {
+    _bgm.play(6);
   } else if (hasMiyon) {
     _bgm.play(5);
   } else if (hasOtherThirdForce) {
@@ -2738,6 +2765,44 @@ function ssUpdateStatUI() {
     document.getElementById('ss-stat-' + s).textContent = ssStats[s];
     document.getElementById('ss-bar-' + s).style.width = (ssStats[s] / SS_STAT_MAX * 100) + '%';
   }
+}
+
+function _syncMssStats() {
+  // _mss.statsとPC版ssStatsを同期してPC版・モバイル版のUIを両方更新
+  _mss.stats.tech   = ssStats.tech;
+  _mss.stats.react  = ssStats.react;
+  _mss.stats.spirit = ssStats.spirit;
+  // PC版UI更新
+  ssUpdateStatUI();
+  // モバイル版UI更新
+  const remain = SS_TOTAL - (ssStats.tech + ssStats.react + ssStats.spirit);
+  const remEl = document.getElementById('ms-stat-remain');
+  if (remEl) remEl.textContent = remain;
+  for (const s of ['tech','react','spirit']) {
+    const valEl = document.getElementById('ms-stat-' + s);
+    const barEl = document.getElementById('ms-bar-' + s);
+    if (valEl) valEl.textContent = ssStats[s];
+    if (barEl) barEl.style.width = (ssStats[s] / SS_STAT_MAX * 100) + '%';
+  }
+}
+
+function ssClearStats() {
+  ssStats.tech = 1; ssStats.react = 1; ssStats.spirit = 1;
+  _syncMssStats();
+}
+
+function ssRandomStats() {
+  // 合計12、各1〜6でランダム振り分け
+  const total = SS_TOTAL;
+  const min = SS_STAT_MIN, max = SS_STAT_MAX;
+  let t, r, s;
+  do {
+    t = min + Math.floor(Math.random() * (max - min + 1));
+    r = min + Math.floor(Math.random() * (max - min + 1));
+    s = total - t - r;
+  } while (s < min || s > max);
+  ssStats.tech = t; ssStats.react = r; ssStats.spirit = s;
+  _syncMssStats();
 }
 
 function ssSelectMatch(el, n) {
@@ -3884,10 +3949,12 @@ function resetAttackCtx() {
 // ============================================================
 // Show card overlay with skill dice result, then call callback on click
 function showSkillOverlay(cardId, diceValue, effectText, effectClass, callback, skillUser) {
-  _audio.skill();
-  setTimeout(() => _audio.dice(), 250);
-  // Track skill failure for mission06
+  // 音順：まずサイコロ音 → 0.2秒後に演出表示 → 0.35秒後にスキル音（失敗時はスキル音なし）
+  _audio.dice();
   const isFail = effectClass === 'skill-effect-fail';
+  if (!isFail) setTimeout(() => _audio.skill(), 350);
+
+  // Track skill failure for mission06
   const failPlayer = (isFail && skillUser) ? skillUser : null;
 
   const overlay = document.getElementById('skill-overlay');
@@ -3903,22 +3970,22 @@ function showSkillOverlay(cardId, diceValue, effectText, effectClass, callback, 
   effectEl.className = 'skill-effect-text ' + (effectClass || 'skill-effect-info');
   if (userNameEl) userNameEl.textContent = skillUser ? skillUser.name : '';
 
-  overlay.classList.add('active');
-
-  // Wait for click to dismiss
-  const handler = () => {
-    overlay.classList.remove('active');
-    overlay.removeEventListener('click', handler);
-    if (failPlayer) {
-      // mission06: skill usage failed
-      checkMissions('skillFail', { player: failPlayer }, () => {
+  // 0.2秒後に演出表示＆クリックハンドラ登録
+  setTimeout(() => {
+    overlay.classList.add('active');
+    const handler = () => {
+      overlay.classList.remove('active');
+      overlay.removeEventListener('click', handler);
+      if (failPlayer) {
+        checkMissions('skillFail', { player: failPlayer }, () => {
+          if (callback) callback();
+        });
+      } else {
         if (callback) callback();
-      });
-    } else {
-      if (callback) callback();
-    }
-  };
-  overlay.addEventListener('click', handler);
+      }
+    };
+    overlay.addEventListener('click', handler);
+  }, 200);
 }
 
 // Determine which skill types a card belongs to
