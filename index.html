@@ -1421,7 +1421,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.35</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.37</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -4937,7 +4937,6 @@ function startGame(rematch) {
   gs._savedStats = null;
   gs.thirdForce = [];
   gs._extraTurnPlayerIdx = -1;
-  gs._extraTurnEventActive = false;
   gs.activeThirdForceEvents = {}; // eventId -> playerIdx
   gs.doneInstantEvents = new Set(); // instant events that have fully ended
   gs.usedOneTimeEvents = [];
@@ -5874,7 +5873,7 @@ function eventMoveself(player, callback) {
   if (player.isHuman) {
     gs.phase = 'event_move'; gs.currentEventText = '【イベント】 移動するマスを選択してください';
     gs.spawnChoices = valid;
-    
+    updateAll();
     gs._eventMoveCallback = (col, row) => {
       player.unit.col = col; player.unit.row = row;
       gs.spawnChoices = [];
@@ -5937,7 +5936,7 @@ function showEventMoveOtherSelect(player, targets, callback) {
     }
   }));
   gs.phase = 'event_effect'; gs.currentEventText = '【イベント】 移動させるユニットを選択してください';
-  setButtons(btns);
+  updateAll(); setButtons(btns);
 }
 
 function eventMoveselfInternal(target, controller, callback, backFn) {
@@ -5946,7 +5945,7 @@ function eventMoveselfInternal(target, controller, callback, backFn) {
   if (controller.isHuman) {
     gs.phase = 'event_move'; gs.currentEventText = '【イベント】 移動するマスを選択してください';
     gs.spawnChoices = valid;
-    
+    updateAll();
     gs._eventMoveCallback = (col, row) => {
       target.unit.col = col; target.unit.row = row;
       gs.spawnChoices = [];
@@ -6043,7 +6042,7 @@ function eventReboot(player, callback) {
       }};
     });
     gs.phase = 'event_effect'; gs.currentEventText = '【イベント】 捨て札からユニットカードを選択してください';
-    setButtons(btns);
+    updateAll(); setButtons(btns);
   } else {
     // CPU: pick highest level unit
     const best = unitCards.reduce((b, cid) => {
@@ -6102,7 +6101,7 @@ function eventDiscardDownTo(player, targetCount, callback) {
       }};
     });
     gs.phase = 'event_effect'; gs.currentEventText = '【イベント】 手札から捨てるカードを選択してください';
-    setButtons(btns);
+    updateAll(); setButtons(btns);
   } else {
     const discardedNames = [];
     while (player.hand.length > targetCount) {
@@ -6158,7 +6157,7 @@ function eventReclaimFromDiscard(player, remaining, callback) {
       if (callback) callback();
     }});
     gs.phase = 'event_effect'; gs.currentEventText = '【イベント】 捨て札からカードを選択してください';
-    setButtons(btns);
+    updateAll(); setButtons(btns);
   } else {
     // CPU: pick highest value cards
     const sorted = [...gs.discard].sort((a,b) => {
@@ -6203,7 +6202,7 @@ function eventPressure(player, callback) {
       }
     }));
     gs.phase = 'event_effect'; gs.currentEventText = '【イベント】 プレイヤーを選択してください';
-    setButtons(btns);
+    updateAll(); setButtons(btns);
   } else {
     // CPU: target enemy with most cards
     const enemies = targets.filter(t => t.team !== player.team);
@@ -6261,7 +6260,7 @@ function eventRetreatNext(orderedPlayers, idx, spawns, callback) {
   if (p.isHuman) {
     gs.phase = 'event_move'; gs.currentEventText = '【イベント】 移動するマスを選択してください';
     gs.spawnChoices = avail.map(([c,r]) => ({ col:c, row:r }));
-    
+    updateAll();
     gs._eventMoveCallback = (col, row) => {
       p.unit.col = col; p.unit.row = row;
       gs.spawnChoices = [];
@@ -6325,7 +6324,7 @@ function eventFalsifyReport(player, callback) {
       }};
     });
     gs.phase = 'event_effect'; gs.currentEventText = '【イベント】 共通ミッションを選択してください';
-    setButtons(btns);
+    updateAll(); setButtons(btns);
   } else {
     // CPU: undo enemy team's completed mission (prefer own team's for allCommonDone control? No, undo enemy's)
     const enemyCompleted = completed.filter(cm => cm.completedBy !== player.team);
@@ -8620,12 +8619,7 @@ function executeSupply(player) {
   // Draw 1 card as part of supply (bypass hand limit — will discard excess after)
   const cardId = player.noCards ? null : forceDrawCard(player);
   if (cardId) {
-    const card = CARD_DB[cardId];
-    if (player.isHuman) {
-      addLog(`${player.name} は山札からカードを 1枚 引いた。`, 'system');
-    } else {
-      addLog(`${player.name} は山札からカードを 1枚 引いた。`, 'system');
-    }
+    addLog(`${player.name} は山札からカードを 1枚 引いた。`, 'system');
   }
   gs.meleeTargets = null;
 
