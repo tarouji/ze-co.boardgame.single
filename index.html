@@ -1421,7 +1421,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 1.1.3</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 1.1.4</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -3909,6 +3909,11 @@ function resetTurnBuffs() {
   turnBuffs.dmgBonus = 0;
   turnBuffs.diceControl = false;
   gs.skillsUsedThisTurn = {};
+}
+
+/** サイコロ操作が有効か判定（ターンプレイヤーのみ適用） */
+function isDiceControlActive(player) {
+  return turnBuffs.diceControl && player === getCurrentPlayer();
 }
 
 function trackSkillUse(player) {
@@ -6679,7 +6684,7 @@ function showPreRollChoice(cp) {
 function humanRoll() {
   const cp = getCurrentPlayer();
   _audio.dice();
-  const d = turnBuffs.diceControl ? null : rollDice(); // null = will prompt choice
+  const d = isDiceControlActive(cp) ? null : rollDice(); // null = will prompt choice
   if (d === null) {
     // Dice control active → player picks value
     showDiceControlChoice(cp, (chosenValue) => {
@@ -7688,7 +7693,7 @@ function useSkillCard(player, cardId, returnCallback) {
 
 function execMoveUp(player, cardId, returnCallback) {
   const statCap = player.stats.tech;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const rawDice = roll ? roll.raw : null;
   const cappedDice = roll ? roll.capped : null;
 
@@ -7715,7 +7720,7 @@ function applyMoveUp(player, cardId, rawDice, cappedDice, returnCallback) {
 
 function execRangeUp(player, cardId, returnCallback) {
   const statCap = player.stats.tech;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const rawDice = roll ? roll.raw : null;
   const cappedDice = roll ? roll.capped : null;
 
@@ -7741,7 +7746,7 @@ function applyRangeUp(player, cardId, rawDice, cappedDice, returnCallback) {
 
 function execDamageUp(player, cardId, returnCallback) {
   const statCap = player.stats.tech;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const rawDice = roll ? roll.raw : null;
   const cappedDice = roll ? roll.capped : null;
 
@@ -7835,7 +7840,7 @@ function getDrawCount(diceValue) {
 
 function execDraw(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const rawDice = roll ? roll.raw : null;
   const cappedDice = roll ? roll.capped : null;
 
@@ -7991,7 +7996,7 @@ function cpuPickDiscardCard(player) {
 // 出目 ≤ spirit → success: all subsequent dice freely chosen
 function execDiceControl(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const diceValue = roll ? roll.raw : null; // RAW for success/fail judgment
   
   if (diceValue === null) {
@@ -8030,7 +8035,7 @@ function applyDiceControl(player, cardId, diceValue, returnCallback) {
 // HP + 出目 × 3
 function execHpRecover(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const rawDice = roll ? roll.raw : null;
   const cappedDice = roll ? roll.capped : null;
 
@@ -8061,7 +8066,7 @@ function applyHpRecover(player, cardId, rawDice, cappedDice, returnCallback) {
 // 捨て札から回収: 1-2→1枚, 3-4→2枚, 5-6→3枚 (リサイクル自身は選択不可)
 function execRecycle(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const rawDice = roll ? roll.raw : null;
   const cappedDice = roll ? roll.capped : null;
 
@@ -8173,7 +8178,7 @@ function cpuRecycleSelect(player, count) {
 // 出目 ≤ spirit → move to own spawn hex (must be empty), reset tech buffs
 function execEmergencyEvac(player, cardId, returnCallback) {
   const statCap = player.stats.spirit;
-  const roll = turnBuffs.diceControl ? null : rollSkillDice(statCap);
+  const roll = isDiceControlActive(player) ? null : rollSkillDice(statCap);
   const diceValue = roll ? roll.raw : null; // RAW for success/fail judgment
   
   if (diceValue === null) {
