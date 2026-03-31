@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>起動戦士ゼーコガンニョム ボードゲーム（1人用）</title>
+<title>起動戦士ゼーコガンニョム ボードゲーム</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Orbitron:wght@700;900&display=swap');
 
@@ -1421,7 +1421,7 @@
 <div class="info-modal-overlay" id="rule-modal">
   <div class="info-modal-panel">
     <div class="info-modal-header">
-      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 0.9.37</span></div>
+      <div class="info-modal-title">ゲームルールの説明<span style="font-size:12px;font-weight:400;color:#556;margin-left:28px;letter-spacing:1px;">version 1.1.3</span></div>
       <button class="info-modal-close" onclick="closeInfoModal('rule-modal')">✕</button>
     </div>
     <div class="info-modal-body" id="rule-modal-body">
@@ -1668,6 +1668,35 @@
 </div>
 
 <script>
+// ============================================================
+// SEEDED RANDOM (Mulberry32) — オンライン同期用
+// ゲームロジック内ではMath.random()の代わりにseededRandom()を使う。
+// BGM/SE（音声波形生成）ではMath.random()をそのまま使う（同期不要）。
+// ============================================================
+const SeededRNG = (() => {
+  let _seed = 0;
+  function _mulberry32() {
+    _seed |= 0;
+    _seed = _seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(_seed ^ (_seed >>> 15), 1 | _seed);
+    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  return {
+    /** シードを設定（ゲーム開始時に1回呼ぶ） */
+    setSeed(s) { _seed = s | 0; },
+    /** 現在のシード値を取得（デバッグ・同期確認用） */
+    getSeed() { return _seed; },
+    /** 0以上1未満の疑似乱数を返す（Math.random()の代替） */
+    random() { return _mulberry32(); },
+    /** min以上max以下の整数を返す */
+    randInt(min, max) { return min + Math.floor(_mulberry32() * (max - min + 1)); },
+  };
+})();
+
+/** ゲームロジック用乱数（seededRandom()で呼ぶ） */
+function seededRandom() { return SeededRNG.random(); }
+
 // ============================================================
 // AUDIO SYSTEM (Web Audio API)
 // ============================================================
@@ -3781,7 +3810,7 @@ function initPlayers() {
 
   // Determine turn order: tech + react descending, random tiebreaker
   const idx = gs.players.map((_, i) => i);
-  const tiebreaker = idx.map(() => Math.random());
+  const tiebreaker = idx.map(() => seededRandom());
   idx.sort((a, b) => {
     const sa = gs.players[a].stats.tech + gs.players[a].stats.react;
     const sb = gs.players[b].stats.tech + gs.players[b].stats.react;
@@ -3824,7 +3853,7 @@ function initPlayersFromSelection(sel) {
 
   // Recalculate turn order (random tiebreaker changes each game)
   const idx = gs.players.map((_, i) => i);
-  const tiebreaker = idx.map(() => Math.random());
+  const tiebreaker = idx.map(() => seededRandom());
   idx.sort((a, b) => {
     const sa = gs.players[a].stats.tech + gs.players[a].stats.react;
     const sb = gs.players[b].stats.tech + gs.players[b].stats.react;
@@ -3837,7 +3866,7 @@ function weightedSelectCPUs(pool, count) {
   const remaining = [...pool];
   for (let i = 0; i < count && remaining.length > 0; i++) {
     const totalWeight = remaining.reduce((s, c) => s + c.weight, 0);
-    let r = Math.random() * totalWeight;
+    let r = seededRandom() * totalWeight;
     let picked = remaining[0];
     for (const c of remaining) {
       r -= c.weight;
@@ -3852,7 +3881,7 @@ function weightedSelectCPUs(pool, count) {
 // ============================================================
 // DICE
 // ============================================================
-function rollDice() { return Math.floor(Math.random()*6)+1; }
+function rollDice() { return Math.floor(seededRandom()*6)+1; }
 
 // Roll skill dice: always rolls 1-6 fairly, then caps at statCap for effect magnitude
 // Returns { raw: 1-6, capped: Math.min(raw, statCap) }
@@ -4037,7 +4066,7 @@ function initDeck() {
 function shuffleDeck() {
   // Fisher-Yates shuffle
   for (let i = gs.deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(seededRandom() * (i + 1));
     [gs.deck[i], gs.deck[j]] = [gs.deck[j], gs.deck[i]];
   }
 }
@@ -4858,7 +4887,7 @@ const SPAWN_MSGS_RESPAWN = ['行きますｯ!!!', '出るぞ!!', 'お久しぶ�
 function addSpawnPopup(col, row, isRespawn) {
   _audio.startup();
   const msgs = isRespawn ? SPAWN_MSGS_RESPAWN : SPAWN_MSGS_INITIAL;
-  const text = msgs[Math.floor(Math.random() * msgs.length)];
+  const text = msgs[Math.floor(seededRandom() * msgs.length)];
   addDamagePopup(col, row, text, '#ffd700');
 }
 
@@ -4917,6 +4946,14 @@ function updateHandBar() {
 // GAME FLOW
 // ============================================================
 function startGame(rematch) {
+  // Seeded random initialization
+  // オンライン対戦時はサーバーから受け取ったシードを使う（将来実装）
+  // 1人プレイ時はDate.nowからシードを生成
+  const seed = gs._onlineSeed || (Date.now() ^ 0xDEADBEEF);
+  SeededRNG.setSeed(seed);
+  gs._currentSeed = seed;  // デバッグ・同期確認用に保存
+  console.log('[SeededRNG] Game seed:', seed);
+
   // Full state reset
   gs.phase = 'setup';
   gs.diceValue = null;
@@ -4988,7 +5025,11 @@ function initMissions() {
   if (gameConfig.matchSize === 1) {
     allIds = allIds.filter(id => id !== 'mission04' && id !== 'mission13');
   }
-  const shuffled = [...allIds].sort(() => Math.random() - 0.5);
+  const shuffled = [...allIds];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   const picked = shuffled.slice(0, 7); // 5 common + 2 team
   gs.missions.common = picked.slice(0, 5).map(id => ({ id, completedBy: null }));
   gs.missions.teamA = { id: picked[5], completed: false };
@@ -5310,7 +5351,7 @@ function initEventDeck() {
   // event34は通常デッキに入れない（捨て札card13条件で特別発生）
   gs.eventDeck = Object.keys(EVENT_DB).filter(id => id !== 'event34');
   for (let i = gs.eventDeck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(seededRandom() * (i + 1));
     [gs.eventDeck[i], gs.eventDeck[j]] = [gs.eventDeck[j], gs.eventDeck[i]];
   }
   gs.activeEvent = null;
@@ -5325,7 +5366,7 @@ function drawEventCard() {
     gs.eventDeck = Object.keys(EVENT_DB).filter(id =>
       !gs.usedOneTimeEvents.includes(id) && !ONE_TIME_EVENTS.has(id));
     for (let i = gs.eventDeck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(seededRandom() * (i + 1));
       [gs.eventDeck[i], gs.eventDeck[j]] = [gs.eventDeck[j], gs.eventDeck[i]];
     }
   }
@@ -5344,7 +5385,7 @@ function triggerEvent(player, callback) {
   const e04Alive = gs.players && gs.players.some(p =>
     p.noCards && !p.destroyed && p.unit && p.unit.templateId === 'e04'
   );
-  if (card13InDiscard && event34Unused && !e04Alive && Math.random() < 0.5) {
+  if (card13InDiscard && event34Unused && !e04Alive && seededRandom() < 0.5) {
     // event34を発火（通常のtriggerEventフローに合流）
     const ev34 = EVENT_DB['event34'];
     gs.usedOneTimeEvents.push('event34');
@@ -6272,7 +6313,7 @@ function eventRetreatNext(orderedPlayers, idx, spawns, callback) {
     updateAll();
     setButtons([]);
   } else {
-    const sp = avail[Math.floor(Math.random() * avail.length)];
+    const sp = avail[Math.floor(seededRandom() * avail.length)];
     p.unit.col = sp[0]; p.unit.row = sp[1];
     addLog(`${p.name} は出撃マスに移動した。`, 'log-event');
     updateAll();
@@ -6358,7 +6399,7 @@ function eventSpawnThirdForce(eventId, player, callback) {
     if (callback) callback();
     return;
   }
-  const spawnHex = valid[Math.floor(Math.random() * valid.length)];
+  const spawnHex = valid[Math.floor(seededRandom() * valid.length)];
 
   // Create third-force player
   const tfPlayer = {
@@ -6503,7 +6544,7 @@ function processSetupQueue() {
   } else {
     // CPU picks random spawn (0.5秒ディレイ後に出撃)
     setTimeout(() => {
-      const sp = avail[Math.floor(Math.random() * avail.length)];
+      const sp = avail[Math.floor(seededRandom() * avail.length)];
       const id = player.team === 'a' ? 's01' : 's02';
       player.unit = createUnit(id, sp[0], sp[1]);
       addLog(`${player.name} は ${player.unit ? player.unit.name : ''} で出撃した。`, 'system');
@@ -6570,7 +6611,7 @@ function cpuPreRoll(cp, callback) {
     const cardId = cp.hand.find(cid => CARD_DB[cid].name === 'ドロー');
     if (!cardId || usedThisTurn.has('ドロー')) { next(); return; }
     const drawProb = aiType === 'type1' ? 0.5 : 1.0;
-    if (Math.random() > drawProb) { next(); return; }
+    if (seededRandom() > drawProb) { next(); return; }
     usedThisTurn.add('ドロー');
     useSkillCard(cp, cardId, () => tryDraw(next));
   }
@@ -6583,7 +6624,7 @@ function cpuPreRoll(cp, callback) {
     if (!cardId) { next(); return; }
     if (!cp.unit || cp.unit.hp > cp.unit.maxHp / 2) { next(); return; }
     const prob = aiType === 'type3' ? 0.5 : 1.0;
-    if (Math.random() > prob) { next(); return; }
+    if (seededRandom() > prob) { next(); return; }
     usedThisTurn.add('耐久値回復');
     useSkillCard(cp, cardId, () => next());
   }
@@ -6855,7 +6896,7 @@ function preDamageRotation_Attacker() {
       // Type1/2/5は1ターン1回のみ（既に使用済みならスキップ）
       const alreadyUsedDmgUp = attackCtx._cpuUsedDmgUp;
       const multiUse = (aiType === 'type3' || aiType === 'type4');
-      if (!noTarget && !evaded && !canKillDmgUp && Math.random() < dmgUpProb && (multiUse || !alreadyUsedDmgUp)) {
+      if (!noTarget && !evaded && !canKillDmgUp && seededRandom() < dmgUpProb && (multiUse || !alreadyUsedDmgUp)) {
         attackCtx._cpuUsedDmgUp = true;
         useSkillCard(attacker, dmgUpCard, () => {
           recalcPreDamageDmg();
@@ -6918,7 +6959,7 @@ function preDamageRotation_Defender() {
       }
 
       function tryEvade(next) {
-        if (evadeCards.length === 0 || Math.random() > evadeProb) { next(); return; }
+        if (evadeCards.length === 0 || seededRandom() > evadeProb) { next(); return; }
         useDefenseSkill(defender, evadeCards[0], () => {
           recalcPreDamageDmg();
           if (attackCtx.evadeSuccess) {
@@ -6931,7 +6972,7 @@ function preDamageRotation_Defender() {
       function tryDefend() {
         const remaining = getUsableSkills(defender, ['B']).filter(cid => CARD_DB[cid].name === '防御');
         if (remaining.length === 0) { preDamageRotation_ComboAllies(0); return; }
-        if (Math.random() > defendProb) { preDamageRotation_ComboAllies(0); return; }
+        if (seededRandom() > defendProb) { preDamageRotation_ComboAllies(0); return; }
         attackCtx._cpuUsedDefend = true;
         useDefenseSkill(defender, remaining[0], () => {
           recalcPreDamageDmg();
@@ -6999,10 +7040,10 @@ function preDamageRotation_ComboAllies(startIdx) {
         if (!evaded && !killable) {
           if (allyAiType === 'type1') {
             // 手札3枚以上→100%、未満→50%
-            doCombo = allyHandCount >= 3 ? true : Math.random() < 0.5;
+            doCombo = allyHandCount >= 3 ? true : seededRandom() < 0.5;
           } else if (allyAiType === 'type2' || allyAiType === 'type5') {
             // 手札2枚以上→100%、未満→50%
-            doCombo = allyHandCount >= 2 ? true : Math.random() < 0.5;
+            doCombo = allyHandCount >= 2 ? true : seededRandom() < 0.5;
           } else if (allyAiType === 'type3' || allyAiType === 'type4') {
             // 100%
             doCombo = true;
@@ -7346,7 +7387,7 @@ function postDamageRotation_Defender() {
       if (!multiUse && gs._cpuUsedCounter) {
         postDamageRotation_Others(0); return;
       }
-      if (usableC.length > 0 && Math.random() < counterProb) {
+      if (usableC.length > 0 && seededRandom() < counterProb) {
         gs._cpuUsedCounter = true;
         execCounterAttack(defender, attacker, usableC[0]);
         return;
@@ -7397,7 +7438,7 @@ function postDamageRotation_Others(startIdx) {
     if (['type1','type2','type3','type4','type5'].includes(pAiType) && usable.length > 0) {
       const isMaxHp = p.unit.hp >= p.unit.maxHp;
       const skipForMaxHp = isMaxHp;
-      if (!skipForMaxHp && Math.random() < cpuSkillProb(pAiType)) {
+      if (!skipForMaxHp && seededRandom() < cpuSkillProb(pAiType)) {
         useSkillCard(p, usable[0], () => postDamageRotation_Others(i + 1));
         return;
       }
@@ -7896,7 +7937,7 @@ function cpuDiscardExcess(player) {
 function cpuPickDiscardCard(player) {
   const aiType = player.ai || 'type1';
   const hand = [...player.hand];
-  const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+  const rand = arr => arr[Math.floor(seededRandom() * arr.length)];
 
   // タイプ別スキル分類
   const unusedSkillNames = {
@@ -8004,13 +8045,13 @@ function execHpRecover(player, cardId, returnCallback) {
 
 function applyHpRecover(player, cardId, rawDice, cappedDice, returnCallback) {
   const heal = cappedDice * 3;
-  const oldHp = player.unit.hp;
-  player.unit.hp = Math.min(player.unit.hp + heal, player.unit.maxHp);
-  const actual = player.unit.hp - oldHp;
+  const actual = Math.min(heal, player.unit.maxHp - player.unit.hp);
   const effectText = `耐久値を ${actual} 回復する`;
-  addLog(`スキルサイコロの出目は ${rawDice} 、耐久値が ${actual} 回復した。（現在の耐久値 ${player.unit.hp}）`, 'log-skill');
+  addLog(`スキルサイコロの出目は ${rawDice} 、耐久値が ${actual} 回復した。（現在の耐久値 ${player.unit.hp + actual}）`, 'log-skill');
   
   showSkillOverlay(cardId, rawDice, effectText, 'skill-effect-success', () => {
+    player.unit.hp = Math.min(player.unit.hp + heal, player.unit.maxHp);
+    if (actual > 0) addDamagePopup(player.unit.col, player.unit.row, `${actual}回復`, '#33ff33');
     updateAll();
     if (returnCallback) returnCallback();
   }, player);
@@ -8112,7 +8153,7 @@ function cpuRecycleSelect(player, count) {
   const recyclable = gs.discard.filter(cid => CARD_DB[cid].name !== 'リサイクル');
   // CPU: ランダムに回収（仕様通り）
   for (let i = recyclable.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(seededRandom() * (i + 1));
     [recyclable[i], recyclable[j]] = [recyclable[j], recyclable[i]];
   }
   const taken = [];
@@ -8262,7 +8303,7 @@ function applyEmergencyEvac(player, cardId, diceValue, returnCallback) {
     if (player.isHuman) {
       showEvacHexSelect(player, available, afterEvac);
     } else {
-      const sp = available[Math.floor(Math.random() * available.length)];
+      const sp = available[Math.floor(seededRandom() * available.length)];
       player.unit.col = sp[0];
       player.unit.row = sp[1];
       addLog(`${player.name} は出撃マスに移動した。`, 'log-skill');
@@ -8495,7 +8536,7 @@ function postMoveRotation_Others(startIdx) {
     const pAiType2 = p.ai || 'type1';
     if (['type1','type2','type3','type4','type5'].includes(pAiType2) && usable.length > 0) {
       const isMaxHp2 = p.unit.hp >= p.unit.maxHp;
-      if (!isMaxHp2 && Math.random() < cpuSkillProb(pAiType2)) {
+      if (!isMaxHp2 && seededRandom() < cpuSkillProb(pAiType2)) {
         useSkillCard(p, usable[0], () => postMoveRotation_Others(i + 1));
         return;
       }
@@ -8772,7 +8813,7 @@ function handleRespawn(player) {
     setButtons([]);
   } else {
     // CPU: pick spawn hex, then choose best unit
-    const sp = avail[Math.floor(Math.random()*avail.length)];
+    const sp = avail[Math.floor(seededRandom()*avail.length)];
     const unitId = cpuChooseRespawnUnit(player);
     let usedCardId = null;
     if (unitId !== (player.team === 'a' ? 's01' : 's02')) {
@@ -8796,7 +8837,7 @@ function cpuChooseRespawnUnit(player) {
   const defaultId = player.team === 'a' ? 's01' : 's02';
   const aiType = player.ai || 'type1';
   const unitCards = player.hand.filter(cid => CARD_DB[cid].type === 'unit');
-  const rand = arr => CARD_DB[arr[Math.floor(Math.random() * arr.length)]].unitId;
+  const rand = arr => CARD_DB[arr[Math.floor(seededRandom() * arr.length)]].unitId;
 
   const lv2 = unitCards.filter(cid => UNIT_DB[CARD_DB[cid].unitId].level === 2);
   const lv3 = unitCards.filter(cid => UNIT_DB[CARD_DB[cid].unitId].level === 3);
@@ -9154,7 +9195,7 @@ function _cpuTurnMain(player, d) {
       return true;
     });
     if (candidates.length === 0) candidates = reachable;
-    return candidates[Math.floor(Math.random() * candidates.length)];
+    return candidates[Math.floor(seededRandom() * candidates.length)];
   }
 
   // ----------------------------------------------------------
@@ -9227,7 +9268,7 @@ function _cpuTurnMain(player, d) {
     let target;
     if (hasAlly && hasEnemy) {
       // 同距離: ランダムでどちらか
-      target = nearest[Math.floor(Math.random() * nearest.length)];
+      target = nearest[Math.floor(seededRandom() * nearest.length)];
     } else if (hasAlly) {
       target = nearest.find(u => u.team === player.team);
     } else {
@@ -9266,7 +9307,7 @@ function _cpuTurnMain(player, d) {
     if (nearest.length === 1) return nearest[0];
     const minHp = Math.min(...nearest.map(e => e.unit.hp));
     const lowestHp = nearest.filter(e => e.unit.hp === minHp);
-    return lowestHp[Math.floor(Math.random() * lowestHp.length)];
+    return lowestHp[Math.floor(seededRandom() * lowestHp.length)];
   }
 
   // ----------------------------------------------------------
@@ -9305,7 +9346,7 @@ function _cpuTurnMain(player, d) {
     const cardId = player.hand.find(cid => CARD_DB[cid].name === '移動力アップ');
     if (!cardId) { callback(); return; }
     const moveUpProb = (aiType === 'type1' || aiType === 'type2') ? 0.5 : 1.0;
-    if (Math.random() > moveUpProb) { callback(); return; }
+    if (seededRandom() > moveUpProb) { callback(); return; }
     useSkillCard(player, cardId, () => {
       // 移動力アップ後に再計算して reachable を更新
       const newMv = getMove(player.unit, gs.diceValue) + (turnBuffs.moveBonus || 0);
@@ -9330,9 +9371,9 @@ function _cpuTurnMain(player, d) {
     const adjAllies = allies.filter(a =>
       allyAdj.some(h => hexDistance(h.col, h.row, a.unit.col, a.unit.row) === 1)
     );
-    const chosenAlly = adjAllies[Math.floor(Math.random() * adjAllies.length)];
+    const chosenAlly = adjAllies[Math.floor(seededRandom() * adjAllies.length)];
     const hexes = allyAdj.filter(h => hexDistance(h.col, h.row, chosenAlly.unit.col, chosenAlly.unit.row) === 1);
-    return hexes[Math.floor(Math.random() * hexes.length)];
+    return hexes[Math.floor(seededRandom() * hexes.length)];
   }
 
   // ----------------------------------------------------------
@@ -9396,7 +9437,7 @@ function _cpuTurnMain(player, d) {
       // 乗り換え条件があれば拠点へ
       const bases2 = findReachableBase(reachable);
       if (bases2.length > 0 && type2WantsBase()) {
-        doMove(bases2[Math.floor(Math.random() * bases2.length)]);
+        doMove(bases2[Math.floor(seededRandom() * bases2.length)]);
         return;
       }
       // 近接できるなら近接
@@ -9437,7 +9478,7 @@ function _cpuTurnMain(player, d) {
       // 近接できないが拠点に止まれる、かつ乗り換え条件あり
       const bases3 = findReachableBase(reachable);
       if (bases3.length > 0 && type34WantsBase()) {
-        doMove(bases3[Math.floor(Math.random() * bases3.length)]);
+        doMove(bases3[Math.floor(seededRandom() * bases3.length)]);
         return;
       }
       // それ以外: 最近の敵へ移動
@@ -9459,7 +9500,7 @@ function _cpuTurnMain(player, d) {
     const canKill4 = shootable4.some(e => effectiveSd4 >= e.unit.hp);
     if (shootable4.length > 0) {
       // 撃墜できないなら50%でスキップして移動へ
-      if (!canKill4 && Math.random() < 0.5) {
+      if (!canKill4 && seededRandom() < 0.5) {
         // 移動フローへ
       } else {
         showPreDamagePhase(player, bestShootTarget(shootable4), 'shoot');
@@ -9476,7 +9517,7 @@ function _cpuTurnMain(player, d) {
       const bases4 = findReachableBase(reachable);
       const wantsBase4 = type34WantsBase() || player.unit.hp < 10;
       if (bases4.length > 0 && wantsBase4) {
-        doMove(bases4[Math.floor(Math.random() * bases4.length)]);
+        doMove(bases4[Math.floor(seededRandom() * bases4.length)]);
         return;
       }
       // 近接できるなら近接（meleeResult4.hex を直接使用）
@@ -9487,7 +9528,7 @@ function _cpuTurnMain(player, d) {
       }
       // 近接できない: 35%で味方隣接できるマスへ、それ以外は最近の敵へ
       const allyHex4 = findAllyAdjHex(reachable, false, false);
-      if (allyHex4 && Math.random() < 0.35) { doMove(allyHex4); return; }
+      if (allyHex4 && seededRandom() < 0.35) { doMove(allyHex4); return; }
       // 味方隣接しない or マスなし: 最近の敵へ
       const target4 = pickNearestEnemy(validEnemies, origCol, origRow);
       const hex4 = pickHexToward(target4, reachable, false, false);
@@ -9504,7 +9545,7 @@ function _cpuTurnMain(player, d) {
       !(h.col === origCol && h.row === origRow)
     );
     if (eventHexes5.length > 0) {
-      const eHex5 = eventHexes5[Math.floor(Math.random() * eventHexes5.length)];
+      const eHex5 = eventHexes5[Math.floor(seededRandom() * eventHexes5.length)];
       doMove(eHex5);
       return;
     }
@@ -9519,7 +9560,7 @@ function _cpuTurnMain(player, d) {
     }
     // 射撃不可: 35%で味方隣接できるマスへ（BASE回避）、それ以外は最近の敵へ
     const allyHex5 = findAllyAdjHex(reachable, true, false);
-    if (allyHex5 && Math.random() < 0.35) { doMove(allyHex5); return; }
+    if (allyHex5 && seededRandom() < 0.35) { doMove(allyHex5); return; }
     // 味方隣接しない or マスなし: 最近の敵へ移動+近接（BASE回避）
     const target5 = pickNearestEnemy(validEnemies, origCol, origRow);
     const hex5 = pickHexToward(target5, reachable, true, false);
@@ -9655,7 +9696,7 @@ function _cpuTurnMain(player, d) {
       if (['type1','type2','type3','type4','type5'].includes(aiType2)) {
         const isMaxHp = player.unit.hp >= player.unit.maxHp;
         const skipForMaxHp = isMaxHp;
-        if (!skipForMaxHp && Math.random() < cpuSkillProb(aiType2)) {
+        if (!skipForMaxHp && seededRandom() < cpuSkillProb(aiType2)) {
           useSkillCard(player, hpRecoverCard, () => {
             updateAll();
             if (gs.phase !== 'gameover') setTimeout(() => endTurn(), 350);
